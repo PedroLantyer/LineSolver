@@ -1,5 +1,6 @@
 #import keyboard
 import dialogBoxGetVar
+import dialogBoxGetConstraints
 import styles
 import pulp
 import tkinter as tk
@@ -54,18 +55,23 @@ class TkGUI:
 
         #OPEN AddVarWindow
         def OpenAddVarWindow():
-            getVarWindow = dialogBoxGetVar.getVariableWindow(text="Insert Variable")
+            getVarWindow = dialogBoxGetVar.GetVariableWindow(text="Insert Variable")
             getVarWindow.top.wait_window() #WAIT FOR WINDOW TO CLOSE
             print("Window Closed, continuing...")
             if(len(DataBridge.variableArr) >= 2):
                 buttonSolve.config(state="normal")
 
+        #OPEN AddConstraintWindow
+        def OpenAddConstraintWindow():
+            getConstraintWindow = dialogBoxGetConstraints.GetConstraintsWindow()
+            getConstraintWindow.top.wait_window()
+            print("Window Closed, continuing...")
 
         #CREATE BUTTONS
         buttonAddVariables = tk.Button(master=self.frame, text="Add Variables", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=OpenAddVarWindow)
-        buttonAddConstants = tk.Button(master=self.frame, text="Add Constants", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief)
+        buttonAddConstraints = tk.Button(master=self.frame, text="Add Constraints", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=OpenAddConstraintWindow)
         buttonDelVariables = tk.Button(master=self.frame, text="Delete Variable", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief)
-        buttonDelConstants = tk.Button(master=self.frame, text="Delete Constant", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief)
+        buttonDelConstraints = tk.Button(master=self.frame, text="Delete Constraints", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief)
 
         #DEF RADIO OPTION RELATED FUNCTION
         def SetRadioOption():
@@ -106,11 +112,11 @@ class TkGUI:
         checkBoxInfUpperBoundary = tk.Checkbutton(master=self.frame, text="Infinite Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.infUpperBoundary, onvalue=1, offvalue=0, command=SetInfUpperBoundary)
 
         #PLACE BUTTONS
-        buttonAddVariables.place(x=585, y=161, width=156, height=56)
-        buttonAddConstants.place(x=585, y=223, width=156, height=56)
-        buttonDelVariables.place(x=585, y=290, width=156, height=32)
-        buttonDelConstants.place(x=585, y=328, width=156, height=32)
-        buttonSolve.place(x=585, y=383, width=156, height=32)
+        buttonAddVariables.place(x=585, y=161, width=180, height=56)
+        buttonAddConstraints.place(x=585, y=223, width=180, height=56)
+        buttonDelVariables.place(x=585, y=290, width=180, height=32)
+        buttonDelConstraints.place(x=585, y=328, width=180, height=32)
+        buttonSolve.place(x=585, y=383, width=180, height=32)
 
         #PLACE RADIO BUTTONS
         radioMin.place(x=61, y=110, width=64, height=25)

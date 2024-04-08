@@ -1,7 +1,9 @@
 class DataBridge:
-    #INITIALIZE ARRAY WITH VARIABLES AND ARRAY WITH VARIABLE BOUNDARIES
     variableArr = []
     variableBoundaries = []
+    constraintArr = []
+    constraintLowerLimits = []
+    constraintUpperLimits = []
 
     def __init__(self) -> None:
         pass
@@ -15,7 +17,6 @@ class DataBridge:
         self.variableBoundaries.append(boundaries)
         print(f"Boundaries added at index: {len(self.variableArr)}")
         print(f"Values:\nLower Boundary: {boundaries[0]}\nUpper Boundary: {boundaries[1]}")
-
     
     def VarAlreadyExists(self, variable):
         for item in self.variableArr:
@@ -25,3 +26,15 @@ class DataBridge:
     def ClearVarArray(self):
         self.variableArr.clear()
         print("Cleared variable array")
+
+    def SetConstraint(self, constraintExp):
+        self.constraintArr.append(constraintExp)
+        print(f"Constraint addead at inded: {len(self.constraintArr)}")
+        print(f"Value:{constraintExp}")
+
+    def SetConstraintLimits(self, boundaries):
+        self.constraintLowerLimits.append(boundaries[0])
+        self.constraintUpperLimits.append(boundaries[1])
+        print(f"Constraint lower limit addead at index: {len(self.constraintLowerLimits)}")
+        print(f"Constraint upper limit addead at index: {len(self.constraintUpperLimits)}")
+        print(f"Values:\nLower Boundary: {boundaries[0]}\nUpper Boundary: {boundaries[1]}")

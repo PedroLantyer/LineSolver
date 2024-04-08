@@ -2,7 +2,7 @@ import tkinter as tk
 import styles
 from bifrost import DataBridge
 
-class getVariableWindow:
+class GetVariableWindow:
     master = None
 
     def __init__(self, text):
@@ -24,7 +24,8 @@ class getVariableWindow:
         frameStyles = styles.GetVarDialog()
         labelStyles = styles.Label()
         entryStyles = styles.Entry()
-        checkBoxStyles = styles.CheckBox
+        checkBoxStyles = styles.CheckBox()
+        buttonStyles = styles.Button()
 
         #CREATE FRAME
         frame = self.dialog.Frame(self.top, borderwidth=2, relief='ridge', bg=frameStyles.bgColor)
@@ -145,7 +146,7 @@ class getVariableWindow:
         checkBoxUpBound = self.dialog.Checkbutton(frame, text="Upper Boundary" , bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=upBoundEnabled, onvalue=1, offvalue=0, command=SetUpperBoundaryEntryState)
         
         #CREATE BUTTON
-        buttonSubmit = self.dialog.Button(frame, text='Add', command=PassVariable)
+        buttonSubmit = self.dialog.Button(frame, text='Add',bg=buttonStyles.bgColor, fg=buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=PassVariable)
         
         #PACK ENTRY
         entryVariable.pack()
