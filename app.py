@@ -78,6 +78,7 @@ class TkGUI:
             if(self.radioOption.get() == "ValueOf"):
                 entryValueOf.config(state="normal")
             else:
+                entryValueOf.delete(0, tk.END)
                 entryValueOf.config(state="disabled")
 
 
