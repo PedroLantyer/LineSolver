@@ -32,7 +32,7 @@ class GetVariableWindow:
         frame.pack(fill='both', expand=True)
 
         #CREATE INSERT VARIABLE LABEL
-        labelInsertVariable = self.dialog.Label(frame, text=self.text, bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize]).pack()
+        labelInsertVariable = self.dialog.Label(frame, text=self.text, bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
 
         #CREATE TK VARIABLE
         currentVarValue = tk.StringVar(value="")
@@ -131,7 +131,10 @@ class GetVariableWindow:
                 print("User attempted to add variable that already exists")
 
             else:
-                if(ValidVariableValue() and ValidLowerBoundary() and ValidUpperBoundary()):
+                if(lowBoundEnabled.get() == 0 and upBoundEnabled.get() == 0):
+                    print("Variable can't have both constraints set to infinite")
+
+                elif(ValidVariableValue() and ValidLowerBoundary() and ValidUpperBoundary()):
                     bridge.SetVariable(currentVarValue.get())
                     boundaries = GetBoundaries()
                     bridge.SetBoundariesForVariable(boundaries=boundaries)
@@ -139,7 +142,6 @@ class GetVariableWindow:
                 
                 else:
                     print("Cannot pass down data under current circumstances")
-                    pass
 
         #CREATE CHECKBOXES
         checkBoxLowBound = self.dialog.Checkbutton(frame, text="Lower Boundary" , bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=lowBoundEnabled, onvalue=1, offvalue=0, command=SetLowBoundaryEntryState)
@@ -148,14 +150,14 @@ class GetVariableWindow:
         #CREATE BUTTON
         buttonSubmit = self.dialog.Button(frame, text='Add',bg=buttonStyles.bgColor, fg=buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=PassVariable)
         
-        #PACK ENTRY
+        #PLACE ELEMENTS
+        labelInsertVariable.pack()
+        
         entryVariable.pack()
 
-        #PLACE CHECKBOXES AND ENTRIES FOR UPPER AND LOWER BOUNDARIES
         checkBoxLowBound.pack()
         entryLowBound.pack()
         checkBoxUpBound.pack()
         entryUpBound.pack()
 
-        #PACK BUTTON
         buttonSubmit.pack()

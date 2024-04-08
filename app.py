@@ -1,4 +1,3 @@
-#import keyboard
 import dialogBoxGetVar
 import dialogBoxGetConstraints
 import styles
@@ -94,6 +93,7 @@ class TkGUI:
         entryLowerBoundary = tk.Entry(master=self.frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor ,bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
         entryUpperBoundary = tk.Entry(master=self.frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
 
+        #CREATE FUNCTION TO SET INFINITE LOWER BOUNDARY STATUS
         def SetInfLowerBoundary():
             if(self.infLowerBoundary.get() == 1):
                 entryLowerBoundary.delete(0,tk.END)
