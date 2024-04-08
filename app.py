@@ -41,10 +41,10 @@ class TkGUI:
 
 
         #CREATE LABELS
-        toLabel = tk.Label(master=self.frame,text = "To:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize]).place(x=12, y=110)
-        objectiveLabel = tk.Label(master=self.frame, text= "Objective:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font,labelStyles.fontSize]).place(x=5, y=15)
-        lowerBoundLabel = tk.Label(master=self.frame, text="Lower Boundary:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize]).place(x=227,y=45)
-        upperBoundLabel = tk.Label(master=self.frame, text="Upper Boundary:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize]).place(x=227,y=77)
+        toLabel = tk.Label(master=self.frame,text = "To:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
+        objectiveLabel = tk.Label(master=self.frame, text= "Objective:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font,labelStyles.fontSize])
+        lowerBoundLabel = tk.Label(master=self.frame, text="Lower Boundary:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
+        upperBoundLabel = tk.Label(master=self.frame, text="Upper Boundary:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
         
         #CREATE LIST BOXES
         listBoxVariables = tk.Listbox(master=self.frame, bg=listBoxStyles.bgColor, fg=listBoxStyles.fgColor, font=[listBoxStyles.font, listBoxStyles.fontSize], relief=listBoxStyles.relief)
@@ -112,29 +112,30 @@ class TkGUI:
         checkBoxInfLowerBoundary = tk.Checkbutton(master=self.frame, text="Infinite Lower Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.infLowerBoundary, onvalue=1, offvalue=0, command=SetInfLowerBoundary)
         checkBoxInfUpperBoundary = tk.Checkbutton(master=self.frame, text="Infinite Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.infUpperBoundary, onvalue=1, offvalue=0, command=SetInfUpperBoundary)
 
-        #PLACE BUTTONS
+        #PLACE ELEMENTS
+        toLabel.place(x=12, y=110)
+        objectiveLabel.place(x=5, y=15)
+        lowerBoundLabel.place(x=227,y=45)
+        upperBoundLabel.place(x=227,y=77)
+
         buttonAddVariables.place(x=585, y=161, width=180, height=56)
         buttonAddConstraints.place(x=585, y=223, width=180, height=56)
         buttonDelVariables.place(x=585, y=290, width=180, height=32)
         buttonDelConstraints.place(x=585, y=328, width=180, height=32)
         buttonSolve.place(x=585, y=383, width=180, height=32)
 
-        #PLACE RADIO BUTTONS
         radioMin.place(x=61, y=110, width=64, height=25)
         radioMax.place(x=131, y=110, width=64, height=25)
         radioValueOf.place(x=201, y=110, width=130, height=25)
 
-        #PLACE ENTRIES
         entryValueOf.place(x=329, y=110, width=250, height=27)
-        entryObjective.place(x=118, y= 12, width=623, height=27)
+        entryObjective.place(x=118, y= 12, width=647, height=27)
         entryLowerBoundary.place(x=375, y=42, width=78, height=27)
         entryUpperBoundary.place(x=375, y=75, width=78, height=27)
 
-        #PLACE CHECKBOXES
-        checkBoxInfLowerBoundary.place(x= 459, y=45, width=285, height=25)
-        checkBoxInfUpperBoundary.place(x= 459, y=77, width=285, height=25)
+        checkBoxInfLowerBoundary.place(x= 459, y=45, height=25)
+        checkBoxInfUpperBoundary.place(x= 459, y=77, height=25)
 
-        #PLACE LIST BOXES
         listBoxVariables.place(x=12, y=159, width=567, height=124)
         listBoxConstraints.place(x=12, y=289, width=567, height=124)
 
