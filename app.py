@@ -24,6 +24,9 @@ class TkGUI:
         self.frame.pack(fill="both", expand=True)
 
     def CreateWidgets(self):
+        #INITIALIZE DATA BRIDGE CLASS
+        bridge = DataBridge()
+
         #GET DESIGNER CLASSES
         
         labelStyles = styles.Label()
@@ -37,6 +40,8 @@ class TkGUI:
         self.radioOption = tk.StringVar(value="Max")
         self.infLowerBoundary = tk.IntVar(value=0)
         self.infUpperBoundary = tk.IntVar(value=0)
+        self.variableList = tk.Variable(value= bridge.GetVariables())
+        self.constraintList = tk.Variable(value= bridge.GetConstraints())
 
 
         #CREATE LABELS
@@ -46,18 +51,28 @@ class TkGUI:
         upperBoundLabel = tk.Label(master=self.frame, text="Upper Boundary:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
         
         #CREATE LIST BOXES
-        listBoxVariables = tk.Listbox(master=self.frame, bg=listBoxStyles.bgColor, fg=listBoxStyles.fgColor, font=[listBoxStyles.font, listBoxStyles.fontSize], relief=listBoxStyles.relief)
-        listBoxConstraints = tk.Listbox(master=self.frame, bg=listBoxStyles.bgColor, fg=listBoxStyles.fgColor, font=[listBoxStyles.font, listBoxStyles.fontSize], relief=listBoxStyles.relief)
+        listBoxVariables = tk.Listbox(master=self.frame, bg=listBoxStyles.bgColor, fg=listBoxStyles.fgColor, font=[listBoxStyles.font, listBoxStyles.fontSize], relief=listBoxStyles.relief, listvariable=self.variableList)
+        listBoxConstraints = tk.Listbox(master=self.frame, bg=listBoxStyles.bgColor, fg=listBoxStyles.fgColor, font=[listBoxStyles.font, listBoxStyles.fontSize], relief=listBoxStyles.relief, listvariable=self.constraintList)
 
         #CREATE SOLVE BUTTON:
         buttonSolve = tk.Button(master=self.frame, text="Solve", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, state="disabled")
+
+        #DEF FUNCTION TO SET VARIABLE LIST AND CONSTRAINT LIST
+        def SetVariableList():
+            self.variableList.set(bridge.GetVariables())
+            print("Updated Variable List")
+        
+        def SetConstraintList():
+            self.constraintList.set(bridge.GetConstraints())
+            print("Updated Constraint List")
 
         #OPEN AddVarWindow
         def OpenAddVarWindow():
             getVarWindow = dialogBoxGetVar.GetVariableWindow(text="Insert Variable")
             getVarWindow.top.wait_window() #WAIT FOR WINDOW TO CLOSE
             print("Window Closed, continuing...")
-            if(len(DataBridge.variableArr) >= 2):
+            SetVariableList()
+            if(len(bridge.variableArr) >= 2):
                 buttonSolve.config(state="normal")
 
         #OPEN AddConstraintWindow
@@ -65,6 +80,7 @@ class TkGUI:
             getConstraintWindow = dialogBoxGetConstraints.GetConstraintsWindow()
             getConstraintWindow.top.wait_window()
             print("Window Closed, continuing...")
+            SetConstraintList()
 
         #CREATE BUTTONS
         buttonAddVariables = tk.Button(master=self.frame, text="Add Variables", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=OpenAddVarWindow)

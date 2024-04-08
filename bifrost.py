@@ -43,3 +43,9 @@ class DataBridge:
         for item in self.constraintArr:
             if(constraint == item): return True
         return False
+    
+    def GetVariables(self):
+        return (self.variableArr)
+    
+    def GetConstraints(self):
+        return (self.constraintArr)

@@ -85,6 +85,7 @@ class GetConstraintsWindow:
                 if(entryUpBound.get().isnumeric()):
                     upperBoundary.set(int(entryUpBound.get()))
                     print(f"Upper Boundary value set to {upperBoundary.get()}")
+                    return True
                 
                 else:
                     print("Invalid Upper Boundary Value")

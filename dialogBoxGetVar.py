@@ -93,6 +93,7 @@ class GetVariableWindow:
                 if(entryUpBound.get().isnumeric()):
                     upperBoundary.set(int(entryUpBound.get()))
                     print(f"Upper Boundary value set to {upperBoundary.get()}")
+                    return True
                 
                 else:
                     print("Invalid Upper Boundary Value")
@@ -102,8 +103,12 @@ class GetVariableWindow:
             
         def ValidVariableValue():
             if(len(currentVarValue.get().strip()) > 0):
-                #VARIABLE VERIFICATION -> WORK IN PROGRESS
-                return True
+                if(currentVarValue.get().isalpha()):
+                    return True
+                    #VARIABLE VERIFICATION -> WORK IN PROGRESS
+                else:
+                    print("Invalid Variable Name")
+                    return False
             else:
                 print("User attempted to add empty variable")
                 return False
