@@ -59,20 +59,25 @@ class GetVariableWindow:
 
         return boundaries
 
+
+
     def AddVariable(self, varStr, lowBoundStr, upBoundStr):
         try:
             self.currentVarValue.set(varStr)
             if(self.lowBoundEnabled.get() == 0 and self.upBoundEnabled.get() == 0): raise Exception("Variable can't have both constraints set to infinite")
             if(self.bridge.VarAlreadyExists(self.currentVarValue.get())): raise Exception("User attempted to add variable that already exists")
-            
-            if(self.varValid.ValidVariableValue(self.currentVarValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
-                self.variable.SetVariableName(self.currentVarValue.get())
-                boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
-                self.variable.SetLowerBoundary(boundaries[0])
-                self.variable.SetUpperBoundary(boundaries[1])
-                self.bridge.SetVariable(self.variable)
-                self.bridge.GetVarArrSize()
-                self.top.destroy()
+            if not (self.varValid.ValidVariableValue(self.currentVarValue.get())): raise Exception("Variable value isn't valid")
+            if not(self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr)): raise Exception("Lower Boundary Isn't Valid")
+            if not(self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)): raise Exception("Upper Boundary Isn't Valid")
+            if (self.boundValid.CheckBoundariesAreEqual(lowBoundStr, upBoundStr)): raise Exception("Upper and Lower Boundaries can't both have the same value")
+
+            self.variable.SetVariableName(self.currentVarValue.get())
+            boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
+            self.variable.SetLowerBoundary(boundaries[0])
+            self.variable.SetUpperBoundary(boundaries[1])
+            self.bridge.SetVariable(self.variable)
+            self.bridge.GetVarArrSize()
+            self.top.destroy()
         
         except Exception as err:
             print(err)

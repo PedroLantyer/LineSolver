@@ -16,7 +16,7 @@ class Solver:
             return False
         
         else: 
-            print("Constraints are valid, continuin...")
+            print("Constraints are valid, continuing...")
             return True
 
 

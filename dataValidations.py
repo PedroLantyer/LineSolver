@@ -22,6 +22,10 @@ class BoundaryValidations:
             
         else: return True
 
+    def CheckBoundariesAreEqual(self, lowBoundStr, upBoundStr):
+        if lowBoundStr == upBoundStr: return True
+        return False
+
 class ConstraintValidations:
 
     def __init__(self) -> None:

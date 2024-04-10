@@ -49,17 +49,20 @@ class GetConstraintsWindow:
             self.currentConstraintValue.set(constraintStr)
             if(self.lowBoundEnabled.get() == 0 and self.upBoundEnabled.get() == 0): raise Exception("Constraint can't have both boundaries set to infinite")
             if(self.bridge.ConstraintAlreadyExists(self.currentConstraintValue.get())): raise Exception(print("User tried to add constraint that already exists"))
-            
-            if(self.constraintValid.ValidConstraintValue(self.currentConstraintValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
-                self.constraint.SetConstraintText(self.currentConstraintValue.get())
-                boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
-                self.constraint.SetLowerBoundary(boundaries[0])
-                self.constraint.SetUpperBoundary(boundaries[1])
-                self.constraint.ExtractPieces()
-                self.constraint.GetPieces()
-                self.bridge.SetConstraint(self.constraint)
-                self.bridge.GetConstraintArraySize()
-                self.top.destroy()
+            if not(self.constraintValid.ValidConstraintValue(self.currentConstraintValue.get())): raise Exception("Constraint value isn't valid")
+            if not(self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr)): raise Exception("Lower Boundary isn't valid")
+            if not(self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)): raise Exception("Upper Boundary isn't valid")
+            if (self.boundValid.CheckBoundariesAreEqual(lowBoundStr, upBoundStr)): raise Exception("Upper and Lower Boundaries can't both have the same value")
+
+            self.constraint.SetConstraintText(self.currentConstraintValue.get())
+            boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
+            self.constraint.SetLowerBoundary(boundaries[0])
+            self.constraint.SetUpperBoundary(boundaries[1])
+            self.constraint.ExtractPieces()
+            self.constraint.GetPieces()
+            self.bridge.SetConstraint(self.constraint)
+            self.bridge.GetConstraintArraySize()
+            self.top.destroy()
                     
         except Exception as err:
             print(err)
