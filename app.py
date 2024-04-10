@@ -1,9 +1,10 @@
 import dialogBoxGetVar
 import dialogBoxGetConstraints
 import styles
-import pulp
+from solving import Solver
 import tkinter as tk
 from bifrost import DataBridge
+
 
 class TkGUI:
     
@@ -28,6 +29,7 @@ class TkGUI:
 
     def InitializeClasses(self):
         self.bridge = DataBridge()
+        self.solve = Solver()
 
     def CreateTkVars(self):
         self.radioOption = tk.StringVar(value="Max")
@@ -51,7 +53,7 @@ class TkGUI:
         self.SetVariableList()
 
     def CheckEnoughVariables(self, buttonSolve):
-        if(self.bridge.GetVarArrSize() >= 2):
+        if(self.bridge.GetVarArrSize() >= 1):
             buttonSolve.config(state="normal")
 
     def OpenAddConstraintWindow(self):
@@ -100,8 +102,14 @@ class TkGUI:
         listBoxVariables = tk.Listbox(master=self.frame, bg=listBoxStyles.bgColor, fg=listBoxStyles.fgColor, font=[listBoxStyles.font, listBoxStyles.fontSize], relief=listBoxStyles.relief, listvariable=self.variableList)
         listBoxConstraints = tk.Listbox(master=self.frame, bg=listBoxStyles.bgColor, fg=listBoxStyles.fgColor, font=[listBoxStyles.font, listBoxStyles.fontSize], relief=listBoxStyles.relief, listvariable=self.constraintList)
 
+        #CREATE FUNCTION FOR SOLVE BUTTON
+
+        def buttonSolveOnClick():
+            print(self.solve.ValidateData())
+            pass
+
         #CREATE SOLVE BUTTON:
-        buttonSolve = tk.Button(master=self.frame, text="Solve", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, state="disabled")
+        buttonSolve = tk.Button(master=self.frame, text="Solve", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, state="disabled", command=buttonSolveOnClick)
 
         #CREATE FUNCTIONS FOR OPENING WINDOWS
         def buttonAddVariableOnClick():

@@ -60,7 +60,7 @@ class ConstraintValidations:
             return False
         
         else: return True
-        
+
 class VariableValidations:
     def __init__(self) -> None:
         pass

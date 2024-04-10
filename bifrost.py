@@ -51,6 +51,7 @@ class Constraint:
                     num = ""
                 elif(previousChar.isalpha()):
                     self.constraintPieces.append(var)
+                    self.constraintVariables.append(var)
                     var = ""
                 self.constraintPieces.append(char)
             
@@ -72,6 +73,7 @@ class Constraint:
             self.constraintPieces.append(num)
         elif(len(var) > 0):
             self.constraintPieces.append(var)
+            self.constraintVariables.append(var)
 
     def GetPieces(self):
         print("\nPieces:")
@@ -113,6 +115,7 @@ class Variable:
 class DataBridge:
     variableArr = []
     constraintArr = []
+    variableNames = []
 
     def __init__(self) -> None:
         pass
@@ -120,7 +123,8 @@ class DataBridge:
     def SetVariable(self, variable):
         try:
             self.variableArr.append(variable)
-            print(f"\nVariable added at index: {self.GetVarArrSize()}")
+            self.variableNames.append(variable.varName.upper())
+            print(f"\nVariable \"{variable.varName}\" added at index: {self.GetVarArrSize()}")
         except:
             print("Failed to add variable")
     
@@ -172,3 +176,19 @@ class DataBridge:
 
             constraintTextArr.append(str)
         return  constraintTextArr
+    
+    def ConstraintHasValidVariables(self):
+        try:
+            #for constraint in self.constraintArr:
+            for i in range(len(self.constraintArr)):
+                for j in range(len(self.constraintArr[i].constraintVariables)):
+                    if (self.variableNames.count(self.constraintArr[i].constraintVariables[j].upper())) == 0: raise Exception(f"Variable {self.constraintArr[i].constraintVariables[j]} not found")
+                #for varName in range(constraint.constraintVariables):
+                    #if (self.variableNames.count(varName) == 0): raise Exception(f"Variable {varName} not found")
+        
+        except Exception as err:
+            print(err)
+            return False
+        
+        else:
+            return True
