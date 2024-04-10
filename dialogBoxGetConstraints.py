@@ -11,15 +11,73 @@ class GetConstraintsWindow:
         #CREATE WINDOW
         self.dialog = tk
         self.top = self.dialog.Toplevel(self.master)
+
+        self.InitializeTkVars()
+        self.InitializeClasses()
         
         self.InitializeElements()
+    
+    def InitializeClasses(self):
+        self.bridge = DataBridge()
+        self.constraint = Constraint()
+        self.boundValid = BoundaryValidations()
+
+    def InitializeTkVars(self):
+        self.currentConstraintValue = tk.StringVar(value="")
+        self.infLowerBoundaryStatus = tk.IntVar(value=0)
+        self.infUpperBoundaryStatus = tk.IntVar(value=0)
+
+    def GetBoundaries(self, infLowerBoundaryStatus, infUpperBoundaryStatus, lowBoundStr, upBoundStr):
+        boundaries = []
+        if(infLowerBoundaryStatus == 1):
+            boundaries.append(None)
+        else:
+            boundaries.append(lowBoundStr)
+
+        if(infUpperBoundaryStatus == 1):
+            boundaries.append(None)
+        else:
+            boundaries.append(upBoundStr)
+
+        return boundaries
+
+    def AddConstraint(self, constraintStr, lowBoundStr, upBoundStr, infLowerBoundary, infUpperBoundary):
+        self.currentConstraintValue.set(constraintStr)
+
+        #if(self.infLowerBoundaryStatus.get() == 1 and self.infUpperBoundaryStatus.get() == 1):
+        if(infLowerBoundary == 1 and infUpperBoundary == 1):
+            print("Constraint can't have both boundaries set to infinite")
+
+        #elif(self.boundValid.ValidConstraintValue(self.currentConstraintValue.get()) and self.boundValid.ValidLowerBoundary(self.infLowerBoundaryStatus.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.infLowerBoundaryStatus.get(), upBoundStr)):
+        elif(self.boundValid.ValidConstraintValue(self.currentConstraintValue.get()) and self.boundValid.ValidLowerBoundary(infLowerBoundary, lowBoundStr) and self.boundValid.ValidUpperBoundary(infUpperBoundary, upBoundStr)):
+            self.constraint.SetConstraintText(self.currentConstraintValue.get())
+            boundaries = self.GetBoundaries(infLowerBoundary, infUpperBoundary, lowBoundStr, upBoundStr)
+            self.constraint.SetLowerBoundary(boundaries[0])
+            self.constraint.SetUpperBoundary(boundaries[1])
+            self.bridge.SetConstraint(self.constraint)
+            self.bridge.GetConstraintArraySize()
+            self.top.destroy()
+                    
+        else:
+            print("Cannot pass down data under current circumstances")
+
+            #FUNCTIONS TO SET INF BOUNDARY STATUS
+    
+    def SetInfLowerBoundaryStatus(self, entryLowBound):
+        if (self.infLowerBoundaryStatus.get() == 1):
+            entryLowBound.delete(0, tk.END)
+            entryLowBound.config(state="disabled")
+        else:
+            entryLowBound.config(state="normal")
+
+    def SetInfUpperBoundaryStatus(self, entryUpBound):
+        if (self.infUpperBoundaryStatus.get() == 1):
+            entryUpBound.delete(0, tk.END)
+            entryUpBound.config(state="disabled")
+        else:
+            entryUpBound.config(state="normal")
 
     def InitializeElements(self):
-        #INITIALIZE CLASSES
-        bridge = DataBridge()
-        constraint = Constraint()
-        boundValid = BoundaryValidations()
-
         #GET DESIGNER CLASSES
         frameStyles = styles.GetVarDialog()
         labelStyles = styles.Label()
@@ -31,13 +89,6 @@ class GetConstraintsWindow:
         frame = self.dialog.Frame(self.top, borderwidth=2, relief='ridge', bg=frameStyles.bgColor)
         frame.pack(fill='both', expand=True)
 
-        #CREATE TK VARIABLES
-        currentConstraintValue = tk.StringVar(value="")
-        infLowerBoundaryStatus = tk.IntVar(value=0)
-        infUpperBoundaryStatus = tk.IntVar(value=0)
-
-        
-
         #CREATE LABELS
         labelInsertLowerBoundary = self.dialog.Label(frame, text="Lower Boundary:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
         labelInsertExpression = self.dialog.Label(frame, text="Expression:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
@@ -48,74 +99,25 @@ class GetConstraintsWindow:
         entryConstraintExpression = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg= entryStyles.fgColor, disabledbackground=entryStyles.disabledBgColor, disabledforeground= entryStyles.disabledFgColor, font=[labelStyles.font, labelStyles.fontSize])
         entryUpBound = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg= entryStyles.fgColor, disabledbackground=entryStyles.disabledBgColor, disabledforeground= entryStyles.disabledFgColor, font=[labelStyles.font, labelStyles.fontSize])
 
-        #FUNCTIONS TO SET INF BOUNDARY STATUS
-        def SetInfLowerBoundaryStatus():
-            if (infLowerBoundaryStatus.get() == 1):
-                entryLowBound.delete(0, tk.END)
-                entryLowBound.config(state="disabled")
-            else:
-                entryLowBound.config(state="normal")
+        #FUNCTIONS FOR THE CHECKBOXES
 
-        def SetInfUpperBoundaryStatus():
-            if (infUpperBoundaryStatus.get() == 1):
-                entryUpBound.delete(0, tk.END)
-                entryUpBound.config(state="disabled")
-            else:
-                entryUpBound.config(state="normal")
+        def InfLowerBoundaryChange():
+            self.SetInfLowerBoundaryStatus(entryLowBound)
+
+        def InfUpperBoundaryChange():
+            self.SetInfUpperBoundaryStatus(entryUpBound)
 
         #CREATE CHECKBOXES
-        checkBoxInfLowerBoundary = self.dialog.Checkbutton(frame, text="Inf Lower Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=infLowerBoundaryStatus, offvalue=0, onvalue=1, command=SetInfLowerBoundaryStatus)
-        checkBoxInfUpperBoundary = self.dialog.Checkbutton(frame, text="Inf Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=infUpperBoundaryStatus, offvalue=0, onvalue=1, command=SetInfUpperBoundaryStatus)
+        checkBoxInfLowerBoundary = self.dialog.Checkbutton(frame, text="Inf Lower Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=self.infLowerBoundaryStatus, offvalue=0, onvalue=1, command=InfLowerBoundaryChange)
+        checkBoxInfUpperBoundary = self.dialog.Checkbutton(frame, text="Inf Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=self.infUpperBoundaryStatus, offvalue=0, onvalue=1, command=InfUpperBoundaryChange)
 
-            
-        def ValidConstraintValue():
-            if(len(currentConstraintValue.get().strip()) > 0):
-                #CONSTRAINT VERIFICATION -> WORK IN PROGRESS
-                return True
-            else:
-                print("User attempted to add empty constraint")
-                return False
-            
-        def GetBoundaries(): #USED ONLY INSIDE AddConstraint()
-            boundaries = []
-            if(infLowerBoundaryStatus.get() == 1):
-                boundaries.append(None)
-            else:
-                boundaries.append(entryLowBound.get())
 
-            if(infUpperBoundaryStatus.get() == 1):
-                boundaries.append(None)
-            else:
-                boundaries.append(entryUpBound.get())
-
-            return boundaries
-            
-        #CREATE FUNCTION FOR PASSING DATA
-        def AddConstraint():
-            currentConstraintValue.set(entryConstraintExpression.get())
-
-            if(bridge.ConstraintAlreadyExists(constraint=currentConstraintValue.get())):
-                print("User attempted to add a constraint that already exists")
-
-            else:
-                if(infLowerBoundaryStatus.get() == 1 and infUpperBoundaryStatus.get() == 1):
-                    print("Constraint can't have both boundaries set to infinite")
-
-                #elif(ValidConstraintValue() and boundaryValidation.ValidLowerBoundary(infLowerBoundaryStatus.get(), ) and ValidUpperBoundary()):
-                elif(ValidConstraintValue() and boundValid.ValidLowerBoundary(infLowerBoundaryStatus.get(), entryLowBound.get()) and boundValid.ValidUpperBoundary(infLowerBoundaryStatus.get(), entryLowBound.get())):
-                        constraint.SetConstraintText(currentConstraintValue.get())
-                        boundaries = GetBoundaries()
-                        constraint.SetLowerBoundary(boundaries[0])
-                        constraint.SetUpperBoundary(boundaries[1])
-                        bridge.SetConstraint(constraint)
-                        bridge.GetConstraintArraySize()
-                        self.top.destroy()
-                
-                else:
-                    print("Cannot pass down data under current circumstances")
+        #FUNCTION FOR THE SUBMIT BUTTON
+        def buttonSubmitOnClick():
+            self.AddConstraint(entryConstraintExpression.get(), entryLowBound.get(), entryUpBound.get(), self.infLowerBoundaryStatus.get(), self.infUpperBoundaryStatus.get())
 
         #CREATE BUTTON
-        buttonSubmit = self.dialog.Button(frame, text="Add", bg=buttonStyles.bgColor, fg=buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=AddConstraint)
+        buttonSubmit = self.dialog.Button(frame, text="Add", bg=buttonStyles.bgColor, fg=buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=buttonSubmitOnClick)
 
         #PLACE ELEMENTS
 

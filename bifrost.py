@@ -70,13 +70,14 @@ class DataBridge:
     def GetConstraintArraySize(self):
         print("Constraint Array Size: %d" %len(self.constraintArr))
 
-    def ConstraintAlreadyExists(self, constraint):
-        for item in self.constraintArr:
-            if(constraint == item): return True
-        return False
+    def GetVarArrSize(self):
+        return (len(self.variableArr))
     
     def GetVariables(self):
         return (self.variableArr)
     
     def GetConstraints(self):
-        return (self.constraintArr)
+        constraintTextArr = []
+        for i in range(len(self.constraintArr)):
+            constraintTextArr.append(self.constraintArr[i].textForm)
+        return  constraintTextArr

@@ -19,30 +19,76 @@ class TkGUI:
         self.master.geometry(mainStyles.dimension)
         self.master.config(bg=mainStyles.bgColor)
 
+        self.InitializeClasses()
+        self.CreateTkVars()
+
         #INITIALIZE THE FRAME
         self.frame = tk.Frame(master=master, bg=frameSyles.bgColor)
         self.frame.pack(fill="both", expand=True)
 
-    def CreateWidgets(self):
-        #INITIALIZE DATA BRIDGE CLASS
-        bridge = DataBridge()
+    def InitializeClasses(self):
+        self.bridge = DataBridge()
 
+    def CreateTkVars(self):
+        self.radioOption = tk.StringVar(value="Max")
+        self.infLowerBoundary = tk.IntVar(value=0)
+        self.infUpperBoundary = tk.IntVar(value=0)
+        self.variableList = tk.Variable(value= self.bridge.GetVariables())
+        self.constraintList = tk.Variable(value= self.bridge.GetConstraints())
+
+    def SetVariableList(self):
+        self.variableList.set(self.bridge.GetVariables())
+        print("Updated Variable List")
+
+    def SetConstraintList(self):
+        self.constraintList.set(self.bridge.GetConstraints())
+        print("Updated Constraint List")
+
+    def OpenAddVarWindow(self):
+        getVarWindow = dialogBoxGetVar.GetVariableWindow(text="Insert Variable")
+        getVarWindow.top.wait_window() #WAIT FOR WINDOW TO CLOSE
+        print("Window Closed, continuing...")
+        self.SetVariableList()
+
+    def CheckEnoughVariables(self, buttonSolve):
+        if(self.bridge.GetVarArrSize() >= 2):
+            buttonSolve.config(state="normal")
+
+    def OpenAddConstraintWindow(self):
+            getConstraintWindow = dialogBoxGetConstraints.GetConstraintsWindow()
+            getConstraintWindow.top.wait_window()
+            print("Window Closed, continuing...")
+            self.SetConstraintList()
+
+    def SetInfLowerBoundary(self, entryLowerBoundary):
+        if(self.infLowerBoundary.get() == 1):
+            entryLowerBoundary.delete(0,tk.END)
+            entryLowerBoundary.config(state="disabled")
+        else:
+            entryLowerBoundary.config(state="normal")
+
+    def SetInfUpperBoundary(self, entryUpperBoundary):
+        if(self.infUpperBoundary.get() == 1):
+            entryUpperBoundary.delete(0, tk.END)
+            entryUpperBoundary.config(state="disabled")
+        else:
+            entryUpperBoundary.config(state="normal")
+
+    def SetRadioOption(self, entryValueOf):
+        if(self.radioOption.get() == "ValueOf"):
+            entryValueOf.config(state="normal")
+        else:
+            entryValueOf.delete(0, tk.END)
+            entryValueOf.config(state="disabled")
+    
+    def CreateWidgets(self):
         #GET DESIGNER CLASSES
-        
         labelStyles = styles.Label()
         buttonStyles = styles.Button()
         radioStyles = styles.RadioButton()
         checkBoxStyles = styles.CheckBox()
         listBoxStyles = styles.ListBox()
         entryStyles = styles.Entry()
-
-        #CREATE TK VARIABLES
-        self.radioOption = tk.StringVar(value="Max")
-        self.infLowerBoundary = tk.IntVar(value=0)
-        self.infUpperBoundary = tk.IntVar(value=0)
-        self.variableList = tk.Variable(value= bridge.GetVariables())
-        self.constraintList = tk.Variable(value= bridge.GetConstraints())
-
 
         #CREATE LABELS
         toLabel = tk.Label(master=self.frame,text = "To:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
@@ -57,51 +103,29 @@ class TkGUI:
         #CREATE SOLVE BUTTON:
         buttonSolve = tk.Button(master=self.frame, text="Solve", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, state="disabled")
 
-        #DEF FUNCTION TO SET VARIABLE LIST AND CONSTRAINT LIST
-        def SetVariableList():
-            self.variableList.set(bridge.GetVariables())
-            print("Updated Variable List")
-        
-        def SetConstraintList():
-            self.constraintList.set(bridge.GetConstraints())
-            print("Updated Constraint List")
+        #CREATE FUNCTIONS FOR OPENING WINDOWS
+        def buttonAddVariableOnClick():
+            self.OpenAddVarWindow()
+            self.CheckEnoughVariables(buttonSolve)
 
-        #OPEN AddVarWindow
-        def OpenAddVarWindow():
-            getVarWindow = dialogBoxGetVar.GetVariableWindow(text="Insert Variable")
-            getVarWindow.top.wait_window() #WAIT FOR WINDOW TO CLOSE
-            print("Window Closed, continuing...")
-            SetVariableList()
-            if(len(bridge.variableArr) >= 2):
-                buttonSolve.config(state="normal")
-
-        #OPEN AddConstraintWindow
-        def OpenAddConstraintWindow():
-            getConstraintWindow = dialogBoxGetConstraints.GetConstraintsWindow()
-            getConstraintWindow.top.wait_window()
-            print("Window Closed, continuing...")
-            SetConstraintList()
+        def buttonAddConstraintsOnClick():   
+            self.OpenAddConstraintWindow()
 
         #CREATE BUTTONS
-        buttonAddVariables = tk.Button(master=self.frame, text="Add Variables", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=OpenAddVarWindow)
-        buttonAddConstraints = tk.Button(master=self.frame, text="Add Constraints", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=OpenAddConstraintWindow)
+        buttonAddVariables = tk.Button(master=self.frame, text="Add Variables", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=buttonAddVariableOnClick)
+        buttonAddConstraints = tk.Button(master=self.frame, text="Add Constraints", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=buttonAddConstraintsOnClick)
         buttonDelVariables = tk.Button(master=self.frame, text="Delete Variable", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief)
         buttonDelConstraints = tk.Button(master=self.frame, text="Delete Constraints", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief)
 
         #DEF RADIO OPTION RELATED FUNCTION
-        def SetRadioOption():
-            if(self.radioOption.get() == "ValueOf"):
-                entryValueOf.config(state="normal")
-            else:
-                entryValueOf.delete(0, tk.END)
-                entryValueOf.config(state="disabled")
 
+        def RadioButtonOptionChange():
+            self.SetRadioOption(entryValueOf)
 
         #CREATE RADIO BUTTONS
-        radioMin = tk.Radiobutton(master=self.frame, text="Min",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value="Min", command=SetRadioOption)
-        radioMax = tk.Radiobutton(master=self.frame, text="Max",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value="Max", command=SetRadioOption)
-        radioValueOf = tk.Radiobutton(master=self.frame, text="Value Of:",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value="ValueOf", command=SetRadioOption)
-
+        radioMin = tk.Radiobutton(master=self.frame, text="Min",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value="Min", command=RadioButtonOptionChange)
+        radioMax = tk.Radiobutton(master=self.frame, text="Max",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value="Max", command=RadioButtonOptionChange)
+        radioValueOf = tk.Radiobutton(master=self.frame, text="Value Of:",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value="ValueOf", command=RadioButtonOptionChange)
 
         #CREATE ENTRIES
         entryValueOf = tk.Entry(master=self.frame, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], state="disabled", disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, relief=entryStyles.relief)
@@ -109,24 +133,16 @@ class TkGUI:
         entryLowerBoundary = tk.Entry(master=self.frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor ,bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
         entryUpperBoundary = tk.Entry(master=self.frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
 
-        #CREATE FUNCTION TO SET INFINITE LOWER BOUNDARY STATUS
-        def SetInfLowerBoundary():
-            if(self.infLowerBoundary.get() == 1):
-                entryLowerBoundary.delete(0,tk.END)
-                entryLowerBoundary.config(state="disabled")
-            else:
-                entryLowerBoundary.config(state="normal")
-        
-        def SetInfUpperBoundary():
-            if(self.infUpperBoundary.get() == 1):
-                entryUpperBoundary.delete(0, tk.END)
-                entryUpperBoundary.config(state="disabled")
-            else:
-                entryUpperBoundary.config(state="normal")
+        #CREATE FUNCTIONS FOR CHECKBOX
+        def InfLowerBoundChange():
+            self.SetInfLowerBoundary(entryLowerBoundary)
+
+        def InfUpperBoundChange():
+            self.SetInfUpperBoundary(entryUpperBoundary)
 
         #CREATE CHECKBOXES
-        checkBoxInfLowerBoundary = tk.Checkbutton(master=self.frame, text="Infinite Lower Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.infLowerBoundary, onvalue=1, offvalue=0, command=SetInfLowerBoundary)
-        checkBoxInfUpperBoundary = tk.Checkbutton(master=self.frame, text="Infinite Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.infUpperBoundary, onvalue=1, offvalue=0, command=SetInfUpperBoundary)
+        checkBoxInfLowerBoundary = tk.Checkbutton(master=self.frame, text="Infinite Lower Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.infLowerBoundary, onvalue=1, offvalue=0, command=InfLowerBoundChange)
+        checkBoxInfUpperBoundary = tk.Checkbutton(master=self.frame, text="Infinite Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.infUpperBoundary, onvalue=1, offvalue=0, command=InfUpperBoundChange)
 
         #PLACE ELEMENTS
         toLabel.place(x=12, y=110)
