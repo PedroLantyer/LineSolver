@@ -62,9 +62,6 @@ class Variable:
         except:
             print("Failed to set Upper Boundary")
 
-
-
-
 class DataBridge:
     variableArr = []
     constraintArr = []
@@ -85,6 +82,12 @@ class DataBridge:
         
         return False
 
+    def ConstraintAlreadyExists(self, constraint):
+        for i in range(len(self.constraintArr)):
+            if(constraint.upper() == self.constraintArr[i].textForm.upper()): return True
+        
+        return False
+
     def SetConstraint(self, constraint):
         try:
             self.constraintArr.append(constraint)
@@ -100,12 +103,24 @@ class DataBridge:
     
     def GetVariables(self):
         varTextArr = []
+
         for i in range(len(self.variableArr)):
-            varTextArr.append(self.variableArr[i].varName)
+            str = ""
+            if(self.variableArr[i].lowerBoundary != "None"): str += f"{self.variableArr[i].lowerBoundary} <= "
+            str += (self.variableArr[i].varName)
+            if(self.variableArr[i].upperBoundary != "None"): str += f" <= {self.variableArr[i].upperBoundary}"
+            varTextArr.append(str)
+
         return varTextArr
-    
+
     def GetConstraints(self):
         constraintTextArr = []
+
         for i in range(len(self.constraintArr)):
-            constraintTextArr.append(self.constraintArr[i].textForm)
+            str = ""
+            if(self.constraintArr[i].lowerBoundary != "None"): str += f"{self.constraintArr[i].lowerBoundary} <= "
+            str += (self.constraintArr[i].textForm)
+            if(self.constraintArr[i].upperBoundary != "None"): str += f" <= {self.constraintArr[i].upperBoundary}"
+
+            constraintTextArr.append(str)
         return  constraintTextArr

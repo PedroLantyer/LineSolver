@@ -59,17 +59,16 @@ class GetVariableWindow:
 
         return boundaries
 
-    def PassVariable(self, varStr, lowBoundStr, upBoundStr):
+    def AddVariable(self, varStr, lowBoundStr, upBoundStr):
         self.currentVarValue.set(varStr)
 
-        if(self.bridge.VarAlreadyExists(self.currentVarValue.get())):
+        if(self.lowBoundEnabled.get() == 0 and self.upBoundEnabled.get() == 0):
+            print("Variable can't have both constraints set to infinite")
+
+        elif(self.bridge.VarAlreadyExists(self.currentVarValue.get())):
             print("User attempted to add variable that already exists")
 
-        else:
-            if(self.lowBoundEnabled.get() == 0 and self.upBoundEnabled.get() == 0):
-                print("Variable can't have both constraints set to infinite")
-
-            elif(self.varValid.ValidVariableValue(self.currentVarValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
+        elif(self.varValid.ValidVariableValue(self.currentVarValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
                 self.variable.SetVariableName(self.currentVarValue.get())
                 boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
                 self.variable.SetLowerBoundary(boundaries[0])
@@ -77,9 +76,9 @@ class GetVariableWindow:
                 self.bridge.SetVariable(self.variable)
                 self.bridge.GetVarArrSize()
                 self.top.destroy()
-                
-            else:
-                print("Cannot pass down data under current circumstances")
+        
+        else:
+            print("Cannot pass down data under current circumstances")
 
     def InitializeElements(self):
         #GET DESIGNER CLASSES
@@ -109,7 +108,7 @@ class GetVariableWindow:
             self.SetUpperBoundaryEntryState(entryUpBound)
 
         def ButtonSubmitOnClick():
-            self.PassVariable(entryVariable.get(), entryLowBound.get(), entryUpBound.get())
+            self.AddVariable(entryVariable.get(), entryLowBound.get(), entryUpBound.get())
 
         #CREATE CHECKBOXES
         checkBoxLowBound = self.dialog.Checkbutton(frame, text="Lower Boundary" , bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=self.lowBoundEnabled, onvalue=1, offvalue=0, command=LowBoundEnabledChanged)

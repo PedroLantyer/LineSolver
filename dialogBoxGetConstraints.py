@@ -27,14 +27,14 @@ class GetConstraintsWindow:
         self.lowBoundEnabled = tk.IntVar(value=1)
         self.upBoundEnabled = tk.IntVar(value=1)
 
-    def GetBoundaries(self, lowBoundEnabled, upBoundEnabled, lowBoundStr, upBoundStr):
+    def GetBoundaries(self, lowBoundStr, upBoundStr):
         boundaries = []
-        if(lowBoundEnabled == 0):
+        if(self.lowBoundEnabled.get() == 0):
             boundaries.append(None)
         else:
             boundaries.append(lowBoundStr)
 
-        if(upBoundEnabled == 0):
+        if(self.upBoundEnabled.get() == 0):
             boundaries.append(None)
         else:
             boundaries.append(upBoundStr)
@@ -44,12 +44,16 @@ class GetConstraintsWindow:
     def AddConstraint(self, constraintStr, lowBoundStr, upBoundStr):
         self.currentConstraintValue.set(constraintStr)
 
+
         if(self.lowBoundEnabled.get() == 0 and self.upBoundEnabled.get() == 0):
             print("Constraint can't have both boundaries set to infinite")
+        
+        elif(self.bridge.ConstraintAlreadyExists(self.currentConstraintValue.get())):
+            print("User tried to add constraint that already exists")
 
         elif(self.boundValid.ValidConstraintValue(self.currentConstraintValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
             self.constraint.SetConstraintText(self.currentConstraintValue.get())
-            boundaries = self.GetBoundaries(self.upBoundEnabled.get(), self.upBoundEnabled.get(), lowBoundStr, upBoundStr)
+            boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
             self.constraint.SetLowerBoundary(boundaries[0])
             self.constraint.SetUpperBoundary(boundaries[1])
             self.bridge.SetConstraint(self.constraint)
