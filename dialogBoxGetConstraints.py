@@ -90,9 +90,7 @@ class GetConstraintsWindow:
         frame.pack(fill='both', expand=True)
 
         #CREATE LABELS
-        labelInsertLowerBoundary = self.dialog.Label(frame, text="Lower Boundary:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
         labelInsertExpression = self.dialog.Label(frame, text="Expression:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
-        labelInsertUpperBoundary = self.dialog.Label(frame, text="Upper Boundary:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
 
         #CREATE TEXTBOXES
         entryLowBound = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg= entryStyles.fgColor, disabledbackground=entryStyles.disabledBgColor, disabledforeground= entryStyles.disabledFgColor, font=[labelStyles.font, labelStyles.fontSize])
@@ -121,12 +119,10 @@ class GetConstraintsWindow:
 
         #PLACE ELEMENTS
 
-        labelInsertLowerBoundary.pack()
-        entryLowBound.pack()
         labelInsertExpression.pack()
         entryConstraintExpression.pack()
-        labelInsertUpperBoundary.pack()
-        entryUpBound.pack()
         checkBoxInfLowerBoundary.pack()
+        entryLowBound.pack()
         checkBoxInfUpperBoundary.pack()
+        entryUpBound.pack()
         buttonSubmit.pack()
