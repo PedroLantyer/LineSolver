@@ -32,21 +32,28 @@ class ConstraintValidations:
         try:
             if(len(constraintStr.strip()) == 0): raise Exception("User Attempted to add empty constraint")
             previousChar = ''
-            operatorCount, charCount = 0,0
+            operatorCount, charCount, numCount = 0, 0, 0
 
             for char in constraintStr:
 
                 if (char.isalpha()): charCount += 1 
                 elif(self.textVerification.isOperator(char)): operatorCount += 1
-                elif(char.isnumeric()): pass
-                else: raise Exception("Constraint must be a collection of letters, numbers and operators with no whitespaces")
+                elif(char.isnumeric()): numCount += 1
+                else: raise Exception("Constraint must be a collection of letters, numbers and operators with no whitespaces\nValid operators are: +, -, *, /")
 
-                if(len(previousChar) != 0):
+                if(len(previousChar) == 0):
+                    if(self.textVerification.isOperator(char) and (char != '-')): raise Exception("Invalid Constraint")
+
+                else:
                     if(self.textVerification.isOperator(previousChar) and self.textVerification.isOperator(char)): raise Exception("Invalid Constraint")
+                    if(char.isnumeric() and previousChar.isalpha()): raise Exception("Invalid Constraint")
+                    if(char.isalpha() and previousChar.isnumeric()): raise Exception("Invalid Constraint")
 
                 previousChar=char
 
-            if(charCount == 0): raise Exception("Constraint must contain characters")
+            if (charCount == 0): raise Exception("Constrain must contain at least one variable.")
+            if (charCount < 2 and numCount == 0): raise Exception("Constraints that don't contain any numbers must include at least two variables")
+            if (operatorCount == 0): raise Exception("All constraints must include at least one operator")
             
         except Exception as err:
             print(err)
@@ -67,7 +74,7 @@ class VariableValidations:
             print(err)
             return False
         
-        else:return True
+        else: return True
 
 class TextVerifications:
     operators = ['+','-','*', '/']

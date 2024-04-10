@@ -1,12 +1,17 @@
+from dataValidations import TextVerifications
+
 class Constraint:
     constraintVariables = []
-    variableModifiers = []
+    constraintPieces = []
     upperBoundary = ""
     lowerBoundary = ""
     textForm = ""
     
     def __init__(self) -> None:
         pass
+
+    def InitializeClasses(self):
+        self.textVerifications = TextVerifications()
 
     def SetConstraintText(self, constraintTxt):
         try:
@@ -30,6 +35,49 @@ class Constraint:
             print("Upper Boundary set to: %s" % self.upperBoundary)
         except:
             print("Failed to set Upper Boundary")
+
+    def ExtractPieces(self):
+        var = ""
+        num = ""
+        previousChar = ''
+
+        self.InitializeClasses()
+        
+        for char in self.textForm: 
+            
+            if(self.textVerifications.isOperator(char)):
+                if(previousChar.isnumeric()):
+                    self.constraintPieces.append(num)
+                    num = ""
+                elif(previousChar.isalpha()):
+                    self.constraintPieces.append(var)
+                    var = ""
+                self.constraintPieces.append(char)
+            
+            elif(char.isalpha()):
+                if(previousChar.isnumeric()):
+                    self.constraintPieces.append(num)
+                    num = ""
+                var += char
+            
+            elif(char.isnumeric):
+                if(previousChar.isalpha()):
+                    self.constraintPieces.append(var)
+                    self.constraintVariables.append(var)
+                    var = ""
+                num += char
+            previousChar = char
+        
+        if(len(num) > 0):
+            self.constraintPieces.append(num)
+        elif(len(var) > 0):
+            self.constraintPieces.append(var)
+
+    def GetPieces(self):
+        print("\nPieces:")
+        for item in self.constraintPieces:
+            print(item, end=" ")
+        print("\n\n")
 
 class Variable:
     lowerBoundary = ""

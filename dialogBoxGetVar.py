@@ -60,15 +60,12 @@ class GetVariableWindow:
         return boundaries
 
     def AddVariable(self, varStr, lowBoundStr, upBoundStr):
-        self.currentVarValue.set(varStr)
-
-        if(self.lowBoundEnabled.get() == 0 and self.upBoundEnabled.get() == 0):
-            print("Variable can't have both constraints set to infinite")
-
-        elif(self.bridge.VarAlreadyExists(self.currentVarValue.get())):
-            print("User attempted to add variable that already exists")
-
-        elif(self.varValid.ValidVariableValue(self.currentVarValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
+        try:
+            self.currentVarValue.set(varStr)
+            if(self.lowBoundEnabled.get() == 0 and self.upBoundEnabled.get() == 0): raise Exception("Variable can't have both constraints set to infinite")
+            if(self.bridge.VarAlreadyExists(self.currentVarValue.get())): raise Exception("User attempted to add variable that already exists")
+            
+            if(self.varValid.ValidVariableValue(self.currentVarValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
                 self.variable.SetVariableName(self.currentVarValue.get())
                 boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
                 self.variable.SetLowerBoundary(boundaries[0])
@@ -77,8 +74,8 @@ class GetVariableWindow:
                 self.bridge.GetVarArrSize()
                 self.top.destroy()
         
-        else:
-            print("Cannot pass down data under current circumstances")
+        except Exception as err:
+            print(err)
 
     def InitializeElements(self):
         #GET DESIGNER CLASSES
