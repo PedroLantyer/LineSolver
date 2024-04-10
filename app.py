@@ -105,9 +105,13 @@ class TkGUI:
         #CREATE FUNCTION FOR SOLVE BUTTON
 
         def buttonSolveOnClick():
-            self.solve.SetObjective(entryObjective.get(), self.lowBoundEnabled.get(), self.upBoundEnabled.get(), entryLowerBoundary.get(), entryUpperBoundary.get())
-            print(self.solve.ValidateData())
-            pass
+            try:
+                if not(self.solve.SetObjective(entryObjective.get(), self.lowBoundEnabled.get(), self.upBoundEnabled.get(), entryLowerBoundary.get(), entryUpperBoundary.get())): raise Exception("Failed to set objective")
+                if not(self.solve.ValidateData()): raise Exception("Failed to Validate Data")
+                if not(self.solve.CreatePulpVariables()): raise Exception("Failed to create Pulp Variables")
+                
+            except Exception as err:
+                print(err)
 
         #CREATE SOLVE BUTTON:
         buttonSolve = tk.Button(master=self.frame, text="Solve", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, state="disabled", command=buttonSolveOnClick)
@@ -186,49 +190,3 @@ if __name__ == "__main__":
     app = TkGUI(master = master)
     app.CreateWidgets()
     master.mainloop()
-
-
-
-
-
-#SAMPLES:
-"""
-def SolveProblemA():
-    #DEFINE PROBLEM
-    ProblemA = pulp.LpProblem("Problem A", pulp.const.LpMaximize)
-
-    #DEFINE VARIABLES
-    A = pulp.LpVariable("A", lowBound = 0, cat = "Integer")
-    B = pulp.LpVariable("B", lowBound = 0, cat = "Integer")
-    C = pulp.LpVariable("C", lowBound = 0, cat = "Integer")
-    D = pulp.LpVariable("D", lowBound = 0, cat = "Integer")
-
-    #DEFINE OBJECTIVE
-    ProblemA += (2*A) + B - (3*C) + (5*D)
-
-    #DEFINE CONSTRAINTS
-    ProblemA += A + (2*B) + (4*C) - D <= 6
-    ProblemA += (2*A) + (3*B) - C + D <= 12
-    ProblemA += A + B + C <= 4 
-
-    #SOLVE PROBLEM
-    status = ProblemA.solve()
-
-    if(status == 1):
-        varA, varB, varC, varD = A.varValue, B.varValue, C.varValue, D.varValue
-        maxValue = (2 * varA) + varB - (3 * varC) + (5 * varD)
-        
-        stringPartOne = "Results for problem #1:\n"
-        stringPartTwo = f"A: {varA}\nB: {varB}\nC: {varC}\nD: {varD}\n"
-        stringPartThree = f"Max value : {maxValue}\n\n"
-        result = f"{stringPartOne}{stringPartTwo}{stringPartThree}"
-
-        return result
-    else:
-        stringPartOne = "Couldn't find optimal result for problem #1\n"
-        stringPartTwo = f"Status: {pulp.LpSolution[status]}"
-        result = f"{stringPartOne}{stringPartTwo}"
-
-        return result
-"""
-#SAMPLES
