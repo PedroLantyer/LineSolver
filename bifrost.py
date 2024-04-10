@@ -1,13 +1,33 @@
 from dataValidations import TextVerifications
 
+class Boundaries:
+    def __init__(self) -> None:
+        pass
+
+    def GetBoundaries(self, lowBoundEnabled, upBoundEnabled, lowBoundStr, upBoundStr):
+        boundaries = []
+        if(lowBoundEnabled == 0):
+            boundaries.append(None)
+        else:
+            boundaries.append(lowBoundStr)
+
+        if(upBoundEnabled == 0):
+            boundaries.append(None)
+        else:
+            boundaries.append(upBoundStr)
+
+        return boundaries
+
 class Constraint:
     constraintVariables = []
     constraintPieces = []
     upperBoundary = ""
     lowerBoundary = ""
     textForm = ""
-    
-    def __init__(self) -> None:
+    isObjective = False
+
+    def __init__(self, isObjective) -> None:
+        self.isObjective = isObjective
         pass
 
     def InitializeClasses(self):
@@ -113,6 +133,7 @@ class Variable:
             print("Failed to set Upper Boundary")
 
 class DataBridge:
+    #objective = []
     variableArr = []
     constraintArr = []
     variableNames = []
@@ -142,9 +163,12 @@ class DataBridge:
 
     def SetConstraint(self, constraint):
         try:
+            if(constraint.isObjective == True): raise Exception("This function can only be used to add Constraints")
             self.constraintArr.append(constraint)
             print(f"\nConstraint added at index: {self.GetConstraintArraySize()}")
-        except:
+        
+        except Exception as err:
+            print(err)
             print("Failed to add constraint")
 
     def GetConstraintArraySize(self):
@@ -179,12 +203,28 @@ class DataBridge:
     
     def ConstraintHasValidVariables(self):
         try:
-            #for constraint in self.constraintArr:
             for i in range(len(self.constraintArr)):
                 for j in range(len(self.constraintArr[i].constraintVariables)):
                     if (self.variableNames.count(self.constraintArr[i].constraintVariables[j].upper())) == 0: raise Exception(f"Variable {self.constraintArr[i].constraintVariables[j]} not found")
-                #for varName in range(constraint.constraintVariables):
-                    #if (self.variableNames.count(varName) == 0): raise Exception(f"Variable {varName} not found")
+        
+        except Exception as err:
+            print(err)
+            return False
+        
+        else:
+            return True
+        
+    def SetObjective(self, objective):
+        try:
+            self.objective = objective
+            print(f"\nObjective \"{objective.textForm}\" set!")
+        except:
+            print("Failed to add objective")
+
+    def ObjectiveHasValidVariables(self):
+        try:
+            for i in range(len(self.objective.constraintVariables)):
+                if (self.variableNames.count(self.objective.constraintVariables[i].upper())) == 0: raise Exception(f"Variable {self.objective[0].constraintVariables[i]} not found")
         
         except Exception as err:
             print(err)

@@ -33,8 +33,8 @@ class TkGUI:
 
     def CreateTkVars(self):
         self.radioOption = tk.StringVar(value="Max")
-        self.infLowerBoundary = tk.IntVar(value=0)
-        self.infUpperBoundary = tk.IntVar(value=0)
+        self.lowBoundEnabled = tk.IntVar(value=1)
+        self.upBoundEnabled = tk.IntVar(value=1)
         self.variableList = tk.Variable(value= self.bridge.GetVariables())
         self.constraintList = tk.Variable(value= self.bridge.GetConstraints())
 
@@ -63,14 +63,14 @@ class TkGUI:
             self.SetConstraintList()
 
     def SetInfLowerBoundary(self, entryLowerBoundary):
-        if(self.infLowerBoundary.get() == 1):
+        if(self.lowBoundEnabled.get() == 0):
             entryLowerBoundary.delete(0,tk.END)
             entryLowerBoundary.config(state="disabled")
         else:
             entryLowerBoundary.config(state="normal")
 
     def SetInfUpperBoundary(self, entryUpperBoundary):
-        if(self.infUpperBoundary.get() == 1):
+        if(self.upBoundEnabled.get() == 0):
             entryUpperBoundary.delete(0, tk.END)
             entryUpperBoundary.config(state="disabled")
         else:
@@ -105,6 +105,7 @@ class TkGUI:
         #CREATE FUNCTION FOR SOLVE BUTTON
 
         def buttonSolveOnClick():
+            self.solve.SetObjective(entryObjective.get(), self.lowBoundEnabled.get(), self.upBoundEnabled.get(), entryLowerBoundary.get(), entryUpperBoundary.get())
             print(self.solve.ValidateData())
             pass
 
@@ -149,8 +150,8 @@ class TkGUI:
             self.SetInfUpperBoundary(entryUpperBoundary)
 
         #CREATE CHECKBOXES
-        checkBoxInfLowerBoundary = tk.Checkbutton(master=self.frame, text="Infinite Lower Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.infLowerBoundary, onvalue=1, offvalue=0, command=InfLowerBoundChange)
-        checkBoxInfUpperBoundary = tk.Checkbutton(master=self.frame, text="Infinite Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.infUpperBoundary, onvalue=1, offvalue=0, command=InfUpperBoundChange)
+        checkBoxInfLowerBoundary = tk.Checkbutton(master=self.frame, text="Infinite Lower Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.lowBoundEnabled, onvalue=0, offvalue=1, command=InfLowerBoundChange)
+        checkBoxInfUpperBoundary = tk.Checkbutton(master=self.frame, text="Infinite Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font,checkBoxStyles.fontSize], variable=self.upBoundEnabled, onvalue=0, offvalue=1, command=InfUpperBoundChange)
 
         #PLACE ELEMENTS
         toLabel.place(x=12, y=110)

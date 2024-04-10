@@ -2,6 +2,7 @@ import tkinter as tk
 import styles
 from bifrost import DataBridge
 from bifrost import Variable
+from bifrost import Boundaries
 from dataValidations import BoundaryValidations
 from dataValidations import VariableValidations
 
@@ -22,6 +23,7 @@ class GetVariableWindow:
 
     def InitializeClasses(self):
         self.bridge = DataBridge()
+        self.boundaries = Boundaries()
         self.boundValid = BoundaryValidations()
         self.varValid = VariableValidations()
         self.variable = Variable()
@@ -45,22 +47,6 @@ class GetVariableWindow:
             entryUpBound.delete(0, tk.END) #CLEAR THE VALUE OF THE UPPER BOUNDARY ENTRY
             entryUpBound.config(state="disabled")
 
-    def GetBoundaries(self, lowBoundStr, upBoundStr):
-        boundaries = []
-        if(self.lowBoundEnabled.get() == 0):
-            boundaries.append(None)
-        else:
-            boundaries.append(lowBoundStr)
-
-        if(self.upBoundEnabled.get() == 0):
-            boundaries.append(None)
-        else:
-            boundaries.append(upBoundStr)
-
-        return boundaries
-
-
-
     def AddVariable(self, varStr, lowBoundStr, upBoundStr):
         try:
             self.currentVarValue.set(varStr)
@@ -72,7 +58,7 @@ class GetVariableWindow:
             if (self.boundValid.CheckBoundariesAreEqual(lowBoundStr, upBoundStr)): raise Exception("Upper and Lower Boundaries can't both have the same value")
 
             self.variable.SetVariableName(self.currentVarValue.get())
-            boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
+            boundaries = self.boundaries.GetBoundaries(self.lowBoundEnabled.get(), self.upBoundEnabled.get(),lowBoundStr, upBoundStr)
             self.variable.SetLowerBoundary(boundaries[0])
             self.variable.SetUpperBoundary(boundaries[1])
             self.bridge.SetVariable(self.variable)

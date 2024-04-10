@@ -2,6 +2,7 @@ import tkinter as tk
 import styles
 from bifrost import DataBridge
 from bifrost import Constraint
+from bifrost import Boundaries
 from dataValidations import BoundaryValidations
 from dataValidations import ConstraintValidations
 
@@ -20,7 +21,8 @@ class GetConstraintsWindow:
     
     def InitializeClasses(self):
         self.bridge = DataBridge()
-        self.constraint = Constraint()
+        self.constraint = Constraint(isObjective=False)
+        self.boundaries = Boundaries()
         self.boundValid = BoundaryValidations()
         self.constraintValid = ConstraintValidations()
 
@@ -28,20 +30,6 @@ class GetConstraintsWindow:
         self.currentConstraintValue = tk.StringVar(value="")
         self.lowBoundEnabled = tk.IntVar(value=1)
         self.upBoundEnabled = tk.IntVar(value=1)
-
-    def GetBoundaries(self, lowBoundStr, upBoundStr):
-        boundaries = []
-        if(self.lowBoundEnabled.get() == 0):
-            boundaries.append(None)
-        else:
-            boundaries.append(lowBoundStr)
-
-        if(self.upBoundEnabled.get() == 0):
-            boundaries.append(None)
-        else:
-            boundaries.append(upBoundStr)
-
-        return boundaries
 
     def AddConstraint(self, constraintStr, lowBoundStr, upBoundStr):
         
@@ -55,7 +43,7 @@ class GetConstraintsWindow:
             if (self.boundValid.CheckBoundariesAreEqual(lowBoundStr, upBoundStr)): raise Exception("Upper and Lower Boundaries can't both have the same value")
 
             self.constraint.SetConstraintText(self.currentConstraintValue.get())
-            boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
+            boundaries = self.boundaries.GetBoundaries(self.lowBoundEnabled.get(), self.upBoundEnabled.get(),lowBoundStr, upBoundStr)
             self.constraint.SetLowerBoundary(boundaries[0])
             self.constraint.SetUpperBoundary(boundaries[1])
             self.constraint.ExtractPieces()
@@ -64,8 +52,7 @@ class GetConstraintsWindow:
             self.bridge.GetConstraintArraySize()
             self.top.destroy()
                     
-        except Exception as err:
-            print(err)
+        except Exception as err: print(err)
     
     def SetInfLowerBoundaryStatus(self, entryLowBound):
         if (self.lowBoundEnabled.get() == 0):
