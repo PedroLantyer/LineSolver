@@ -119,12 +119,9 @@ class GetVariableWindow:
         
         #PLACE ELEMENTS
         labelInsertVariable.pack()
-        
         entryVariable.pack()
-
         checkBoxLowBound.pack()
         entryLowBound.pack()
         checkBoxUpBound.pack()
         entryUpBound.pack()
-
         buttonSubmit.pack()
