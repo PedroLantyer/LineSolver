@@ -1,6 +1,8 @@
 import tkinter as tk
 import styles
 from bifrost import DataBridge
+from bifrost import Constraint
+from dataValidations import BoundaryValidations
 
 class GetConstraintsWindow:
     master = None
@@ -13,8 +15,10 @@ class GetConstraintsWindow:
         self.InitializeElements()
 
     def InitializeElements(self):
-        #INITIALIZE DATA BRIDGE CLASS
+        #INITIALIZE CLASSES
         bridge = DataBridge()
+        constraint = Constraint()
+        boundValid = BoundaryValidations()
 
         #GET DESIGNER CLASSES
         frameStyles = styles.GetVarDialog()
@@ -31,10 +35,8 @@ class GetConstraintsWindow:
         currentConstraintValue = tk.StringVar(value="")
         infLowerBoundaryStatus = tk.IntVar(value=0)
         infUpperBoundaryStatus = tk.IntVar(value=0)
-        lowerBoundary = tk.IntVar(value=0)
-        upperBoundary = tk.IntVar(value=0)
-        lowerBoundaryTemp = tk.StringVar(value="")
-        upperBoundaryTemp = tk.IntVar(value="")
+
+        
 
         #CREATE LABELS
         labelInsertLowerBoundary = self.dialog.Label(frame, text="Lower Boundary:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
@@ -65,33 +67,6 @@ class GetConstraintsWindow:
         checkBoxInfLowerBoundary = self.dialog.Checkbutton(frame, text="Inf Lower Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=infLowerBoundaryStatus, offvalue=0, onvalue=1, command=SetInfLowerBoundaryStatus)
         checkBoxInfUpperBoundary = self.dialog.Checkbutton(frame, text="Inf Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=infUpperBoundaryStatus, offvalue=0, onvalue=1, command=SetInfUpperBoundaryStatus)
 
-        #CREATE FUNCTIONS TO VERIFY VALUES
-        def ValidLowerBoundary():
-            if(infLowerBoundaryStatus.get() == 0):
-                if (entryLowBound.get().isnumeric()):
-                    lowerBoundary.set(int(entryLowBound.get()))
-                    print(f"Lower Boundary value set to {lowerBoundary.get()}")
-                    return True
-                
-                else:
-                    print("Invalid Lower Boundary Value Must Be Number")                    
-                    return False
-            
-            else:
-                return True
-            
-        def ValidUpperBoundary():
-            if(infUpperBoundaryStatus.get() == 0):
-                if(entryUpBound.get().isnumeric()):
-                    upperBoundary.set(int(entryUpBound.get()))
-                    print(f"Upper Boundary value set to {upperBoundary.get()}")
-                    return True
-                
-                else:
-                    print("Invalid Upper Boundary Value")
-                    return False
-            else:
-                return True
             
         def ValidConstraintValue():
             if(len(currentConstraintValue.get().strip()) > 0):
@@ -101,22 +76,22 @@ class GetConstraintsWindow:
                 print("User attempted to add empty constraint")
                 return False
             
-        def GetBoundaries(): #USED ONLY INSIDE PassVariable()
+        def GetBoundaries(): #USED ONLY INSIDE AddConstraint()
             boundaries = []
             if(infLowerBoundaryStatus.get() == 1):
                 boundaries.append(None)
             else:
-                boundaries.append(lowerBoundary.get())
+                boundaries.append(entryLowBound.get())
 
             if(infUpperBoundaryStatus.get() == 1):
                 boundaries.append(None)
             else:
-                boundaries.append(upperBoundary.get())
+                boundaries.append(entryUpBound.get())
 
             return boundaries
             
         #CREATE FUNCTION FOR PASSING DATA
-        def PassVariable():
+        def AddConstraint():
             currentConstraintValue.set(entryConstraintExpression.get())
 
             if(bridge.ConstraintAlreadyExists(constraint=currentConstraintValue.get())):
@@ -126,17 +101,21 @@ class GetConstraintsWindow:
                 if(infLowerBoundaryStatus.get() == 1 and infUpperBoundaryStatus.get() == 1):
                     print("Constraint can't have both boundaries set to infinite")
 
-                elif(ValidConstraintValue() and ValidLowerBoundary() and ValidUpperBoundary()):
-                    bridge.SetConstraint(currentConstraintValue.get())
-                    boundaries = GetBoundaries()
-                    bridge.SetBoundariesForConstraint(boundaries=boundaries)
-                    self.top.destroy()
+                #elif(ValidConstraintValue() and boundaryValidation.ValidLowerBoundary(infLowerBoundaryStatus.get(), ) and ValidUpperBoundary()):
+                elif(ValidConstraintValue() and boundValid.ValidLowerBoundary(infLowerBoundaryStatus.get(), entryLowBound.get()) and boundValid.ValidUpperBoundary(infLowerBoundaryStatus.get(), entryLowBound.get())):
+                        constraint.SetConstraintText(currentConstraintValue.get())
+                        boundaries = GetBoundaries()
+                        constraint.SetLowerBoundary(boundaries[0])
+                        constraint.SetUpperBoundary(boundaries[1])
+                        bridge.SetConstraint(constraint)
+                        bridge.GetConstraintArraySize()
+                        self.top.destroy()
                 
                 else:
                     print("Cannot pass down data under current circumstances")
 
         #CREATE BUTTON
-        buttonSubmit = self.dialog.Button(frame, text="Add", bg=buttonStyles.bgColor, fg=buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=PassVariable)
+        buttonSubmit = self.dialog.Button(frame, text="Add", bg=buttonStyles.bgColor, fg=buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=AddConstraint)
 
         #PLACE ELEMENTS
 

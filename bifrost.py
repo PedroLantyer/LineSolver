@@ -1,3 +1,36 @@
+class Constraint:
+    constraintVariables = []
+    variableModifiers = []
+    upperBoundary = ""
+    lowerBoundary = ""
+    textForm = ""
+    
+    def __init__(self) -> None:
+        pass
+
+    def SetConstraintText(self, constraintTxt):
+        try:
+            self.textForm = constraintTxt
+            print("Constraint text set to: %s" % self.textForm)
+        except:
+            print("Failed to set constraint")
+
+    def SetLowerBoundary(self, lowBound):
+        try:
+            value = str(lowBound)
+            self.lowerBoundary = value
+            print("Lower Boundary set to: %s" % self.lowerBoundary)
+        except:
+            print("Failed to set Lower Boundary")
+        
+    def SetUpperBoundary(self, upBound):
+        try:
+            value = str(upBound)
+            self.upperBoundary = value
+            print("Upper Boundary set to: %s" % self.upperBoundary)
+        except:
+            print("Failed to set Upper Boundary")
+
 class DataBridge:
     variableArr = []
     variableBoundaries = []
@@ -27,17 +60,15 @@ class DataBridge:
         self.variableArr.clear()
         print("Cleared variable array")
 
-    def SetConstraint(self, constraintExp):
-        self.constraintArr.append(constraintExp)
-        print(f"\nConstraint added at inded: {len(self.constraintArr)}")
-        print(f"Value:{constraintExp}")
+    def SetConstraint(self, constraint):
+        try:
+            self.constraintArr.append(constraint)
+            print(f"\nConstraint added at inded: {len(self.constraintArr)}")
+        except:
+            print("Failed to add constraint")
 
-    def SetBoundariesForConstraint(self, boundaries):
-        self.constraintLowerLimits.append(boundaries[0])
-        self.constraintUpperLimits.append(boundaries[1])
-        print(f"\nConstraint lower limit addead at index: {len(self.constraintLowerLimits)}")
-        print(f"Constraint upper limit addead at index: {len(self.constraintUpperLimits)}")
-        print(f"Values:\nLower Boundary: {boundaries[0]}\nUpper Boundary: {boundaries[1]}")
+    def GetConstraintArraySize(self):
+        print("Constraint Array Size: %d" %len(self.constraintArr))
 
     def ConstraintAlreadyExists(self, constraint):
         for item in self.constraintArr:
