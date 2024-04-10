@@ -2,11 +2,8 @@ class BoundaryValidations:
     def __init__(self) -> None:
          pass
         
-    def ValidLowerBoundary(self, infLowerBoundary, lowBoundStr):
-        #TEMP
-        print("Value: %d" % infLowerBoundary)
-        #TEMP
-        if(infLowerBoundary == 0):
+    def ValidLowerBoundary(self, lowEnabled, lowBoundStr):
+        if(lowEnabled == 1):
             if (lowBoundStr.isnumeric()):
                 return True
             
@@ -17,11 +14,8 @@ class BoundaryValidations:
         else:
             return True
         
-    def ValidUpperBoundary(self, infUpperBoundary, upBoundStr):
-        #TEMP
-        print("Value: %d" % infUpperBoundary)
-        #TEMP
-        if(infUpperBoundary == 0):
+    def ValidUpperBoundary(self, upBoundEnabled, upBoundStr):
+        if(upBoundEnabled == 1):
             if (upBoundStr.isnumeric()):
                 return True
             
@@ -38,4 +32,17 @@ class BoundaryValidations:
             return True
         else:
             print("User attempted to add empty constraint")
+            return False
+        
+class VariableValidations:
+    def ValidVariableValue(self, variableStr):
+        if(len(variableStr.strip()) > 0):
+            if(variableStr.isalpha()):
+                return True
+                #VARIABLE VERIFICATION -> WORK IN PROGRESS
+            else:
+                print("Invalid Variable Name")
+                return False
+        else:
+            print("User attempted to add empty variable")
             return False

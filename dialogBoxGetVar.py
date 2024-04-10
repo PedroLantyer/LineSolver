@@ -1,6 +1,9 @@
 import tkinter as tk
 import styles
 from bifrost import DataBridge
+from bifrost import Variable
+from dataValidations import BoundaryValidations
+from dataValidations import VariableValidations
 
 class GetVariableWindow:
     master = None
@@ -13,13 +16,72 @@ class GetVariableWindow:
         self.top = self.dialog.Toplevel(self.master)
         self.text = text
         
+        self.InitializeClasses()
+        self.InitializeTkVars()
         self.InitializeElements()
 
-    def InitializeElements(self):
-        
-        #INITIALIZE DATA BRIDGE CLASS
-        bridge = DataBridge()
+    def InitializeClasses(self):
+        self.bridge = DataBridge()
+        self.boundValid = BoundaryValidations()
+        self.varValid = VariableValidations()
+        self.variable = Variable()
 
+    def InitializeTkVars(self):
+        self.currentVarValue = tk.StringVar(value="")
+        self.lowBoundEnabled = tk.IntVar(value=1)
+        self.upBoundEnabled = tk.IntVar(value=1)
+
+    def SetLowBoundaryEntryState(self, entryLowBound):
+        if(self.lowBoundEnabled.get() == 1):
+            entryLowBound.config(state="normal")
+        else:
+            entryLowBound.delete(0, tk.END)
+            entryLowBound.config(state="disabled")
+
+    def SetUpperBoundaryEntryState(self, entryUpBound):
+        if(self.upBoundEnabled.get() == 1):
+            entryUpBound.config(state="normal")
+        else:
+            entryUpBound.delete(0, tk.END) #CLEAR THE VALUE OF THE UPPER BOUNDARY ENTRY
+            entryUpBound.config(state="disabled")
+
+    def GetBoundaries(self, lowBoundStr, upBoundStr):
+        boundaries = []
+        if(self.lowBoundEnabled.get() == 0):
+            boundaries.append(None)
+        else:
+            boundaries.append(lowBoundStr)
+
+        if(self.upBoundEnabled.get() == 0):
+            boundaries.append(None)
+        else:
+            boundaries.append(upBoundStr)
+
+        return boundaries
+
+    def PassVariable(self, varStr, lowBoundStr, upBoundStr):
+        self.currentVarValue.set(varStr)
+
+        if(self.bridge.VarAlreadyExists(self.currentVarValue.get())):
+            print("User attempted to add variable that already exists")
+
+        else:
+            if(self.lowBoundEnabled.get() == 0 and self.upBoundEnabled.get() == 0):
+                print("Variable can't have both constraints set to infinite")
+
+            elif(self.varValid.ValidVariableValue(self.currentVarValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
+                self.variable.SetVariableName(self.currentVarValue.get())
+                boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
+                self.variable.SetLowerBoundary(boundaries[0])
+                self.variable.SetUpperBoundary(boundaries[1])
+                self.bridge.SetVariable(self.variable)
+                self.bridge.GetVarArrSize()
+                self.top.destroy()
+                
+            else:
+                print("Cannot pass down data under current circumstances")
+
+    def InitializeElements(self):
         #GET DESIGNER CLASSES
         frameStyles = styles.GetVarDialog()
         labelStyles = styles.Label()
@@ -33,127 +95,28 @@ class GetVariableWindow:
 
         #CREATE INSERT VARIABLE LABEL
         labelInsertVariable = self.dialog.Label(frame, text=self.text, bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
-
-        #CREATE TK VARIABLE
-        currentVarValue = tk.StringVar(value="")
-        lowBoundEnabled = tk.IntVar(value=0)
-        upBoundEnabled = tk.IntVar(value=0)
-        lowerBoundary = tk.IntVar(value=0)
-        upperBoundary = tk.IntVar(value=0)
-        lowerBoundaryTemp = tk.StringVar(value="")
-        upperBoundaryTemp = tk.IntVar(value="")
         
-        #CREATE ENTRY VARIABLE
+        #CREATE ENTRIES
         entryVariable = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
-        
-        #SET FOCUS ON ENTRY FIELD
-        entryVariable.focus_set()
+        entryLowBound = self.dialog.Entry(frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
+        entryUpBound = self.dialog.Entry(frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
 
-        #CREATE ENTRIES FOR RECEIVING UPPER AND LOWER BOUNDARIES
-        entryLowBound = self.dialog.Entry(frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief, state="disabled")
-        entryUpBound = self.dialog.Entry(frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief, state="disabled")
+        #DEFINE FUNCTIONS
+        def LowBoundEnabledChanged():
+            self.SetLowBoundaryEntryState(entryLowBound)
 
-        #CREATE FUNCTIONS TO SET THE STATE OF THE LOW BOUND AND UP BOUND ENTRIES
-        def SetLowBoundaryEntryState():
-            if(lowBoundEnabled.get() == 1):
-                entryLowBound.config(state="normal")
-            else:
-                entryLowBound.delete(0, tk.END) #CLEAR THE VALUE OF THE LOWER BOUNDARY ENTRY
-                entryLowBound.config(state="disabled")
-                lowerBoundaryTemp.set("")
-                print("Lower Boundary value set to None")
-        
-        def SetUpperBoundaryEntryState():
-            if(upBoundEnabled.get() == 1):
-                entryUpBound.config(state="normal")
-            else:
-                entryUpBound.delete(0, tk.END) #CLEAR THE VALUE OF THE UPPER BOUNDARY ENTRY
-                entryUpBound.config(state="disabled")
-                upperBoundaryTemp.set("")
-                print("Upper Boundary value set to None")
+        def UpBoundEnabledChanged():
+            self.SetUpperBoundaryEntryState(entryUpBound)
 
-
-        #CREATE FUNCTIONS TO VERIFY VALUES
-        def ValidLowerBoundary():
-            if(lowBoundEnabled.get() == 1):
-                if (entryLowBound.get().isnumeric()):
-                    lowerBoundary.set(int(entryLowBound.get()))
-                    print(f"Lower Boundary value set to {lowerBoundary.get()}")
-                    return True
-                
-                else:
-                    print("Invalid Lower Boundary Value Must Be Number")                    
-                    return False
-            
-            else:
-                return True
-            
-        def ValidUpperBoundary():
-            if(upBoundEnabled.get() == 1):
-                if(entryUpBound.get().isnumeric()):
-                    upperBoundary.set(int(entryUpBound.get()))
-                    print(f"Upper Boundary value set to {upperBoundary.get()}")
-                    return True
-                
-                else:
-                    print("Invalid Upper Boundary Value")
-                    return False
-            else:
-                return True
-            
-        def ValidVariableValue():
-            if(len(currentVarValue.get().strip()) > 0):
-                if(currentVarValue.get().isalpha()):
-                    return True
-                    #VARIABLE VERIFICATION -> WORK IN PROGRESS
-                else:
-                    print("Invalid Variable Name")
-                    return False
-            else:
-                print("User attempted to add empty variable")
-                return False
-
-
-        def GetBoundaries(): #USED ONLY INSIDE PassVariable()
-            boundaries = []
-            if(lowBoundEnabled.get() == 0):
-                boundaries.append(None)
-            else:
-                boundaries.append(lowerBoundary.get())
-
-            if(upBoundEnabled.get() == 0):
-                boundaries.append(None)
-            else:
-                boundaries.append(upperBoundary.get())
-
-            return boundaries
-
-        #CREATE FUNCTION FOR PASSING DATA
-        def PassVariable():
-            currentVarValue.set(entryVariable.get())
-
-            if(bridge.VarAlreadyExists(variable=currentVarValue.get())):
-                print("User attempted to add variable that already exists")
-
-            else:
-                if(lowBoundEnabled.get() == 0 and upBoundEnabled.get() == 0):
-                    print("Variable can't have both constraints set to infinite")
-
-                elif(ValidVariableValue() and ValidLowerBoundary() and ValidUpperBoundary()):
-                    bridge.SetVariable(currentVarValue.get())
-                    boundaries = GetBoundaries()
-                    bridge.SetBoundariesForVariable(boundaries=boundaries)
-                    self.top.destroy()
-                
-                else:
-                    print("Cannot pass down data under current circumstances")
+        def ButtonSubmitOnClick():
+            self.PassVariable(entryVariable.get(), entryLowBound.get(), entryUpBound.get())
 
         #CREATE CHECKBOXES
-        checkBoxLowBound = self.dialog.Checkbutton(frame, text="Lower Boundary" , bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=lowBoundEnabled, onvalue=1, offvalue=0, command=SetLowBoundaryEntryState)
-        checkBoxUpBound = self.dialog.Checkbutton(frame, text="Upper Boundary" , bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=upBoundEnabled, onvalue=1, offvalue=0, command=SetUpperBoundaryEntryState)
+        checkBoxLowBound = self.dialog.Checkbutton(frame, text="Lower Boundary" , bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=self.lowBoundEnabled, onvalue=1, offvalue=0, command=LowBoundEnabledChanged)
+        checkBoxUpBound = self.dialog.Checkbutton(frame, text="Upper Boundary" , bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=self.upBoundEnabled, onvalue=1, offvalue=0, command=UpBoundEnabledChanged)
         
         #CREATE BUTTON
-        buttonSubmit = self.dialog.Button(frame, text='Add',bg=buttonStyles.bgColor, fg=buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=PassVariable)
+        buttonSubmit = self.dialog.Button(frame, text='Add',bg=buttonStyles.bgColor, fg=buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, command=ButtonSubmitOnClick)
         
         #PLACE ELEMENTS
         labelInsertVariable.pack()

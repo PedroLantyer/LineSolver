@@ -31,39 +31,64 @@ class Constraint:
         except:
             print("Failed to set Upper Boundary")
 
+class Variable:
+    lowerBoundary = ""
+    upperBoundary = ""
+    varName = ""
+    
+    def __init__(self) -> None:
+        pass
+
+    def SetVariableName(self, name):
+        try:
+            self.varName = name
+            print("Variable Name set to: %s" % self.varName)
+        except:
+            print("Failed to set variable")
+
+    def SetLowerBoundary(self, lowBound):
+        try:
+            value = str(lowBound)
+            self.lowerBoundary = value
+            print("Lower Boundary set to: %s" % self.lowerBoundary)
+        except:
+            print("Failed to set Lower Boundary")
+
+    def SetUpperBoundary(self, upBound):
+        try:
+            value = str(upBound)
+            self.upperBoundary = value
+            print("Upper Boundary set to: %s" % self.upperBoundary)
+        except:
+            print("Failed to set Upper Boundary")
+
+
+
+
 class DataBridge:
     variableArr = []
-    variableBoundaries = []
     constraintArr = []
-    constraintLowerLimits = []
-    constraintUpperLimits = []
 
     def __init__(self) -> None:
         pass
     
     def SetVariable(self, variable):
-        self.variableArr.append(variable)
-        print(f"\nVariable set to: {variable}")
-        print(f"Current Array Length: {len(self.variableArr)}")
-
-    def SetBoundariesForVariable(self, boundaries):
-        self.variableBoundaries.append(boundaries)
-        print(f"\nBoundaries added at index: {len(self.variableArr)}")
-        print(f"Values:\nLower Boundary: {boundaries[0]}\nUpper Boundary: {boundaries[1]}")
+        try:
+            self.variableArr.append(variable)
+            print(f"\nVariable added at index: {self.GetVarArrSize()}")
+        except:
+            print("Failed to add variable")
     
     def VarAlreadyExists(self, variable):
-        for item in self.variableArr:
-            if(variable == item): return True
+        for i in range(len(self.variableArr)):
+            if(variable.upper() == self.variableArr[i].varName.upper()): return True
+        
         return False
-    
-    def ClearVarArray(self):
-        self.variableArr.clear()
-        print("Cleared variable array")
 
     def SetConstraint(self, constraint):
         try:
             self.constraintArr.append(constraint)
-            print(f"\nConstraint added at inded: {len(self.constraintArr)}")
+            print(f"\nConstraint added at index: {self.GetConstraintArraySize()}")
         except:
             print("Failed to add constraint")
 
@@ -74,7 +99,10 @@ class DataBridge:
         return (len(self.variableArr))
     
     def GetVariables(self):
-        return (self.variableArr)
+        varTextArr = []
+        for i in range(len(self.variableArr)):
+            varTextArr.append(self.variableArr[i].varName)
+        return varTextArr
     
     def GetConstraints(self):
         constraintTextArr = []

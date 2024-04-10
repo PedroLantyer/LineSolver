@@ -171,11 +171,6 @@ class TkGUI:
         listBoxVariables.place(x=12, y=159, width=567, height=124)
         listBoxConstraints.place(x=12, y=289, width=567, height=124)
 
-        
-
-
-    
-
 if __name__ == "__main__":
     #GUI
     master = tk.Tk()
