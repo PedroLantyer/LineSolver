@@ -3,6 +3,7 @@ import styles
 from bifrost import DataBridge
 from bifrost import Constraint
 from dataValidations import BoundaryValidations
+from dataValidations import ConstraintValidations
 
 class GetConstraintsWindow:
     master = None
@@ -21,6 +22,7 @@ class GetConstraintsWindow:
         self.bridge = DataBridge()
         self.constraint = Constraint()
         self.boundValid = BoundaryValidations()
+        self.constraintValid = ConstraintValidations()
 
     def InitializeTkVars(self):
         self.currentConstraintValue = tk.StringVar(value="")
@@ -51,7 +53,7 @@ class GetConstraintsWindow:
         elif(self.bridge.ConstraintAlreadyExists(self.currentConstraintValue.get())):
             print("User tried to add constraint that already exists")
 
-        elif(self.boundValid.ValidConstraintValue(self.currentConstraintValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
+        elif(self.constraintValid.ValidConstraintValue(self.currentConstraintValue.get()) and self.boundValid.ValidLowerBoundary(self.lowBoundEnabled.get(), lowBoundStr) and self.boundValid.ValidUpperBoundary(self.upBoundEnabled.get(), upBoundStr)):
             self.constraint.SetConstraintText(self.currentConstraintValue.get())
             boundaries = self.GetBoundaries(lowBoundStr, upBoundStr)
             self.constraint.SetLowerBoundary(boundaries[0])
