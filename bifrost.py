@@ -21,10 +21,12 @@ class Boundaries:
 class Constraint:
     constraintVariables = []
     constraintPieces = []
+    constraintNumModifiers = []
     upperBoundary = ""
     lowerBoundary = ""
     textForm = ""
     isObjective = False
+    lpSense = -1
 
     def __init__(self, isObjective) -> None:
         self.isObjective = isObjective
@@ -32,6 +34,7 @@ class Constraint:
 
     def InitializeClasses(self):
         self.textVerifications = TextVerifications()
+        self.bridge = DataBridge()
 
     def SetConstraintText(self, constraintTxt):
         try:
@@ -47,7 +50,16 @@ class Constraint:
             print("Lower Boundary set to: %s" % self.lowerBoundary)
         except:
             print("Failed to set Lower Boundary")
+    
+    def SetLpSense(self):
+        try:
+            self.lpSense = self.bridge.GetLpSense()
+        except Exception as err:
+            print(f"Failed to change LpSense\n{err}")
+        else:
+            print(f"Changed LpSense to {self.lpSense}")
         
+
     def SetUpperBoundary(self, upBound):
         try:
             value = str(upBound)
@@ -61,24 +73,46 @@ class Constraint:
         num = ""
         previousChar = ''
 
+        if(len(self.constraintPieces) > 0): self.constraintPieces.clear()
+        if(len(self.constraintNumModifiers) > 0): self.constraintNumModifiers.clear()
+        if(len(self.constraintVariables) > 0) :self.constraintVariables.clear()
         self.InitializeClasses()
-        
-        for char in self.textForm: 
+        for i in range(len(self.textForm)):
             
+            char = self.textForm[i]
+
             if(self.textVerifications.isOperator(char)):
+                
                 if(previousChar.isnumeric()):
                     self.constraintPieces.append(num)
+                    self.constraintNumModifiers.append(int(num))
                     num = ""
+                
                 elif(previousChar.isalpha()):
                     self.constraintPieces.append(var)
                     self.constraintVariables.append(var)
                     var = ""
-                self.constraintPieces.append(char)
+                
+                if(char != '-'): self.constraintPieces.append(char)
             
             elif(char.isalpha()):
+                if(len(previousChar) == 0):
+                    self.constraintPieces.append("1")
+                    self.constraintNumModifiers.append(1)
+
                 if(previousChar.isnumeric()):
                     self.constraintPieces.append(num)
+                    self.constraintNumModifiers.append(int(num))
                     num = ""
+
+                elif(previousChar == '-'):
+                    self.constraintPieces.append("-1")
+                    self.constraintNumModifiers.append(-1)
+                
+                elif(self.textVerifications.isOperator(previousChar)):
+                    self.constraintPieces.append("1")
+                    self.constraintNumModifiers.append(1)
+                
                 var += char
             
             elif(char.isnumeric):
@@ -86,14 +120,20 @@ class Constraint:
                     self.constraintPieces.append(var)
                     self.constraintVariables.append(var)
                     var = ""
+                elif(previousChar == '-'):
+                    num += previousChar
                 num += char
+            
             previousChar = char
+            
         
         if(len(num) > 0):
             self.constraintPieces.append(num)
+            num = ""
         elif(len(var) > 0):
             self.constraintPieces.append(var)
             self.constraintVariables.append(var)
+            var = ""
 
     def GetPieces(self):
         print("\nPieces:")
@@ -133,14 +173,25 @@ class Variable:
             print("Failed to set Upper Boundary")
 
 class DataBridge:
-    #objective = []
     variableArr = []
     constraintArr = []
     variableNames = []
+    lpSense = -1
 
     def __init__(self) -> None:
         pass
+
+    def SetLpSense(self, lpSenseInt):
+        try:
+            self.lpSense = lpSenseInt
+        except Exception as err:
+            print(err)
+        else:
+            print(f"LpSense changed to {self.lpSense}")
     
+    def GetLpSense(self):
+        return self.lpSense
+
     def SetVariable(self, variable):
         try:
             self.variableArr.append(variable)
@@ -165,7 +216,7 @@ class DataBridge:
         try:
             if(constraint.isObjective == True): raise Exception("This function can only be used to add Constraints")
             self.constraintArr.append(constraint)
-            print(f"\nConstraint added at index: {self.GetConstraintArraySize()}")
+            print(f"\nConstraint added at index: {len(self.constraintArr)}")
         
         except Exception as err:
             print(err)

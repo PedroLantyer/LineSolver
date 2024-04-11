@@ -32,19 +32,20 @@ class TkGUI:
         self.solve = Solver()
 
     def CreateTkVars(self):
-        self.radioOption = tk.StringVar(value="Max")
+        self.radioOption = tk.IntVar(value=-1)
         self.lowBoundEnabled = tk.IntVar(value=1)
         self.upBoundEnabled = tk.IntVar(value=1)
         self.variableList = tk.Variable(value= self.bridge.GetVariables())
         self.constraintList = tk.Variable(value= self.bridge.GetConstraints())
+        self.exactValueOf = tk.StringVar(value = "")
 
     def SetVariableList(self):
         self.variableList.set(self.bridge.GetVariables())
-        print("Updated Variable List")
+        print("Updated Variable List\n")
 
     def SetConstraintList(self):
         self.constraintList.set(self.bridge.GetConstraints())
-        print("Updated Constraint List")
+        print("Updated Constraint List\n")
 
     def OpenAddVarWindow(self):
         getVarWindow = dialogBoxGetVar.GetVariableWindow(text="Insert Variable")
@@ -77,12 +78,13 @@ class TkGUI:
             entryUpperBoundary.config(state="normal")
 
     def SetRadioOption(self, entryValueOf):
-        if(self.radioOption.get() == "ValueOf"):
+        if(self.radioOption.get() == 0):
             entryValueOf.config(state="normal")
         else:
             entryValueOf.delete(0, tk.END)
-            entryValueOf.config(state="disabled")
-    
+            entryValueOf.config(state="disabled") 
+        self.bridge.SetLpSense(self.radioOption.get())
+
     def CreateWidgets(self):
         #GET DESIGNER CLASSES
         labelStyles = styles.Label()
@@ -104,11 +106,18 @@ class TkGUI:
 
         #CREATE FUNCTION FOR SOLVE BUTTON
 
-        def buttonSolveOnClick():
+        def buttonSolveOnClick(): #ALTER PULP VARIABLE INT SENSE VALUE AFTER TESTS
             try:
-                if not(self.solve.SetObjective(entryObjective.get(), self.lowBoundEnabled.get(), self.upBoundEnabled.get(), entryLowerBoundary.get(), entryUpperBoundary.get())): raise Exception("Failed to set objective")
+                if not(self.solve.ValidateObjective(entryObjective.get(), self.lowBoundEnabled.get(), self.upBoundEnabled.get(), entryLowerBoundary.get(), entryUpperBoundary.get())): raise Exception("Failed to set objective")
                 if not(self.solve.ValidateData()): raise Exception("Failed to Validate Data")
+                if not(self.solve.CreatePulpProblem(senseInt=self.radioOption.get())): raise Exception("Failed to Create Problem")
                 if not(self.solve.CreatePulpVariables()): raise Exception("Failed to create Pulp Variables")
+                if not(self.solve.AddVariables()): raise Exception("Failed to add variables")
+                if not(self.solve.SetObjective(senseInt=self.radioOption.get(), equalToStr="Null")): raise Exception("Failed to Set Objective") #VALUE IS TEMPORARY. ALTER ONCE TESTED
+                if not(self.solve.CreateConstraints()): raise Exception("Failed to create constraints")
+                if not(self.solve.ApplyConstraints()): raise Exception("Couldn't apply constraints")
+                if not(self.solve.SolveProblem()): raise Exception("Couldn't Solve Problem")
+                if not(self.solve.PrintValues()): raise Exception("Failed to print values")
                 
             except Exception as err:
                 print(err)
@@ -136,9 +145,9 @@ class TkGUI:
             self.SetRadioOption(entryValueOf)
 
         #CREATE RADIO BUTTONS
-        radioMin = tk.Radiobutton(master=self.frame, text="Min",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value="Min", command=RadioButtonOptionChange)
-        radioMax = tk.Radiobutton(master=self.frame, text="Max",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value="Max", command=RadioButtonOptionChange)
-        radioValueOf = tk.Radiobutton(master=self.frame, text="Value Of:",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value="ValueOf", command=RadioButtonOptionChange)
+        radioMin = tk.Radiobutton(master=self.frame, text="Min",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value=1, command=RadioButtonOptionChange)
+        radioMax = tk.Radiobutton(master=self.frame, text="Max",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value=-1, command=RadioButtonOptionChange)
+        radioValueOf = tk.Radiobutton(master=self.frame, text="Value Of:",bg = radioStyles.bgColor, fg=radioStyles.fgColor, font=[radioStyles.font, radioStyles.fontSize], variable=self.radioOption, value=0, command=RadioButtonOptionChange)
 
         #CREATE ENTRIES
         entryValueOf = tk.Entry(master=self.frame, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], state="disabled", disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, relief=entryStyles.relief)

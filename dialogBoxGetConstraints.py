@@ -48,6 +48,7 @@ class GetConstraintsWindow:
             self.constraint.SetUpperBoundary(boundaries[1])
             self.constraint.ExtractPieces()
             self.constraint.GetPieces()
+            self.constraint.SetLpSense()
             self.bridge.SetConstraint(self.constraint)
             self.bridge.GetConstraintArraySize()
             self.top.destroy()
