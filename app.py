@@ -113,9 +113,11 @@ class TkGUI:
                 if not(self.solve.CreatePulpProblem(senseInt=self.radioOption.get())): raise Exception("Failed to Create Problem")
                 if not(self.solve.CreatePulpVariables()): raise Exception("Failed to create Pulp Variables")
                 if not(self.solve.AddVariables()): raise Exception("Failed to add variables")
+                
                 if not(self.solve.SetObjective(senseInt=self.radioOption.get(), equalToStr="Null")): raise Exception("Failed to Set Objective") #VALUE IS TEMPORARY. ALTER ONCE TESTED
                 if not(self.solve.CreateConstraints()): raise Exception("Failed to create constraints")
                 if not(self.solve.ApplyConstraints()): raise Exception("Couldn't apply constraints")
+
                 if not(self.solve.SolveProblem()): raise Exception("Couldn't Solve Problem")
                 if not(self.solve.PrintValues()): raise Exception("Failed to print values")
                 

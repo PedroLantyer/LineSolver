@@ -170,7 +170,6 @@ class Solver:
 
             affine = pulp.LpAffineExpression( [x[k],a[k]] for k in range(len(self.objectiveVariables)))
             objectiveVar = pulp.LpConstraintVar(name= "Objective", sense=lpSense, rhs=self.targetValue, e=affine)
-            #objectiveVar = pulp.LpConstraintVar(name= "Objective", rhs=targetValue, e=affine)
             
             print(f"LpSense for Objective: {lpSense}")
             print(f"Limit for objective = {self.targetValue}")
@@ -235,7 +234,7 @@ class Solver:
         
     def SolveProblem(self):
         try:
-            status = self.pulpProblem.solve()
+            self.status = self.pulpProblem.solve()
         except Exception as err:
             print(err)
             return False
@@ -244,8 +243,9 @@ class Solver:
         
     def PrintValues(self):
         try:
-            for i in range(len(self.pulpVars)):
-                print(f"Variable #{i}: {self.pulpVars[i].varValue}")
+            if self.status == 1:
+                for i in range(len(self.pulpVars)):
+                    print(f"Variable #{i}: {self.pulpVars[i].varValue}")
 
         except Exception as err:
             print(err)
