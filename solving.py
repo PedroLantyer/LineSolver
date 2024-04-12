@@ -173,7 +173,7 @@ class Solver:
             self.PrintList("List A", a)
             #TEST
 
-            affine = pulp.LpAffineExpression( [x[k],a[k]] for k in range(len(x)))
+            affine = pulp.LpAffineExpression([(x[k],a[k]) for k in range(len(x))])
             #if(lpSense == 1): self.targetValue = int(self.bridge.objective.lowerBoundary)
             #elif(lpSense == -1): self.targetValue = int(self.bridge.objective.upperBoundary)
             #elif(lpSense == 0): self.targetValue = int(equalToStr)
@@ -225,7 +225,7 @@ class Solver:
                 
                 print("\nOK!\n")
 
-                affine = pulp.LpAffineExpression([x[k],a[k]] for k in range(len(x)))
+                affine = pulp.LpAffineExpression([(x[k],a[k]) for k in range(len(x))])
                 self.affinedExpressions.append(affine)
                 constraintName = f"Constraint {i}"
 
