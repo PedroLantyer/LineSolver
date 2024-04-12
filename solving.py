@@ -15,6 +15,18 @@ class Solver:
         self.constraintValid = ConstraintValidations()
         pass
 
+    def ConvertListItemsToInt(self, list):
+        try:
+            for i in range(len(list)):
+                temp = list[i]
+                list[i] = int(temp)
+        except Exception as err:
+            print("Print Failed to convert list items to integers")
+            print(err)
+        
+        finally:
+            return list
+
     def ValidateObjective(self, objectiveStr, lowBoundEnabled, upBoundEnabled, lowBoundStr, upBoundStr):
         try:
             if(lowBoundEnabled == 0 and upBoundEnabled == 0): raise Exception("Objective can't have both boundaries set to infinite")
@@ -100,80 +112,80 @@ class Solver:
             print("Variables added to problem")
             return True
 
-    def GetVariableIndexes(self, constraintVarList):
-        self.variableIndex = []
-
+    def GetSpecificVars(self, constraintVarList):
         try:
-            for i in range(len(constraintVarList)):
-                self.variableIndex.append(self.variableNames.index(constraintVarList[i].upper()))
+            self.specificVarsList = []
+            indexes = []
+            if(len(self.specificVarsList) > 0): self.specificVarsList.clear()
+            if(len(indexes)> 0): indexes.clear()
+
+            
+            for i in range(len(self.variableNames)):
+                if (constraintVarList.count(self.variableNames[i]) > 0):
+                    indexes.append(i)
+            
+            for i in range(len(indexes)):
+                self.specificVarsList.append(self.pulpVars[indexes[i]])
 
         except Exception as err:
+            print("Failed to get Specific Vars")
             print(err)
             return False
-        else:
-            print("Variable indexes acquired")
-            return True
         
-    def GetSpecificVarsList(self):
-        self.specificVarsList = []
-        
-        try:
-            for i in range (len(self.variableIndex)):
-                self.specificVarsList.append(self.pulpVars[self.variableIndex[i]])
-        except Exception as err:
-            print(err)
-            return False
         else:
             print("Created list with variables specific to constraint\n")
             return True
     
-    def GetObjectiveVarIndexes(self, objectiveVarList):
-        self.objectiveVarsIndex = []
-
+    def GetObjectiveVars(self, objectiveVarList):
         try:
-            for i in range(len(objectiveVarList)):
-                self.objectiveVarsIndex.append(self.variableNames.index(objectiveVarList[i].upper()))
+            self.objectiveVarList = []
+            indexes = []
+            
+            if(len(self.objectiveVarList) > 0): self.objectiveVarList.clear()
+            if(len(indexes) > 0): indexes.clear()
+            
+            for i in range(len(self.variableNames)):
+                if(objectiveVarList.count(self.variableNames[i])) > 0:
+                    indexes.append(i)
 
-        except Exception as err:
-            print(err)
-            return False
-        
-        else:
-            print("Variable indexes acquired")
-            return True
-
-    def GetObjectiveVars(self):
-        self.objectiveVariables = []
-
-        try:
-            for i in range(len(self.objectiveVarsIndex)):
-                self.objectiveVariables.append(self.pulpVars[self.objectiveVarsIndex[i]])
+            for i in range(len(indexes)):
+                self.objectiveVarList.append(self.pulpVars[indexes[i]])
         
         except Exception as err:
+            print("Failed to get Objective Vars")
             print(err)
             return False
+
         else:
-            print("Created list with variables speific to objective")
+            print("Created list with variables for objective")
             return True
 
     def SetObjective(self, senseInt, equalToStr):
         try:
-            if not(self.GetObjectiveVarIndexes(self.bridge.objective.constraintVariables)): raise Exception("Failed to get Variable Indexes")
-            if not(self.GetObjectiveVars()): return Exception("Failed to get variables specific to objective")
+            if not(self.GetObjectiveVars(self.bridge.objective.constraintVariables)): return Exception("Failed to get variables specific to objective")
 
-            x = self.objectiveVariables
-            a = self.bridge.objective.constraintNumModifiers
+            x = self.objectiveVarList
+            a = self.ConvertListItemsToInt(self.bridge.objective.constraintNumModifiers)
             lpSense = senseInt
-            if(lpSense == 1): self.targetValue = int(self.bridge.objective.lowerBoundary)
-            elif(lpSense == -1): self.targetValue = int(self.bridge.objective.upperBoundary)
-            elif(lpSense == 0): self.targetValue = int(equalToStr)
 
-            affine = pulp.LpAffineExpression( [x[k],a[k]] for k in range(len(self.objectiveVariables)))
-            objectiveVar = pulp.LpConstraintVar(name= "Objective", sense=lpSense, rhs=self.targetValue, e=affine)
+            #TEST
+            self.PrintList("List X", x)
+            self.PrintList("List A", a)
+            #TEST
+
+            affine = pulp.LpAffineExpression( [x[k],a[k]] for k in range(len(x)))
+            #if(lpSense == 1): self.targetValue = int(self.bridge.objective.lowerBoundary)
+            #elif(lpSense == -1): self.targetValue = int(self.bridge.objective.upperBoundary)
+            #elif(lpSense == 0): self.targetValue = int(equalToStr)
+            
+            if(lpSense == 0): 
+                self.targetValue = int(equalToStr)
+                objectiveVar = pulp.LpConstraintVar(name= "Objective", sense=lpSense, rhs=self.targetValue, e=affine)
+                print(f"Limit for objective = {self.targetValue}")
+            else:
+                objectiveVar = pulp.LpConstraintVar(name= "Objective", sense=lpSense, e=affine)
             
             print(f"LpSense for Objective: {lpSense}")
-            print(f"Limit for objective = {self.targetValue}")
-
             self.pulpProblem.setObjective(objectiveVar)
         
         except Exception as err:
@@ -190,28 +202,45 @@ class Solver:
         
         try:
             for i in range(len(self.bridge.constraintArr)):
-                if not(self.GetVariableIndexes(self.bridge.constraintArr[i].constraintVariables)): raise Exception("Failed to get Variable Indexes")
-                if not(self.GetSpecificVarsList()): return Exception("Failed to get variables specific to constraint")
+                if not(self.GetSpecificVars(self.bridge.constraintArr[i].constraintVariables)): return Exception("Failed to get variables specific to constraint")
 
                 x = self.specificVarsList
-                a = self.bridge.constraintArr[i].constraintNumModifiers
+                a = self.ConvertListItemsToInt(self.bridge.constraintArr[i].constraintNumModifiers)
+
+                #TESTING
+
+                self.PrintList(f"Constraint {i} Var List:", self.bridge.constraintArr[i].constraintVariables)
+                print(f"\nConstraint {i}:")
+                print(f"Size for X: {len(x)}")
+                self.PrintList("List X", x)
+                print(f"Size for A: {len(a)}")
+                self.PrintList("List A", a)
+                #TESTING
+
                 lpSense = self.bridge.constraintArr[i].lpSense
                 if(lpSense == 1): constraintLimit = int(self.bridge.constraintArr[i].lowerBoundary)
                 elif(lpSense == -1): constraintLimit = int(self.bridge.constraintArr[i].upperBoundary)
                 elif(lpSense == 0): constraintLimit = 990 #TEMPORARY
                 else: raise Exception("Invalid LpSense Value")
+                
+                print("\nOK!\n")
 
-                affine = pulp.LpAffineExpression( [x[k],a[k]] for k in range(len(self.specificVarsList)))
+                affine = pulp.LpAffineExpression([x[k],a[k]] for k in range(len(x)))
                 self.affinedExpressions.append(affine)
                 constraintName = f"Constraint {i}"
 
+                print("\nOK OK!\n")
+
                 constraintVar = pulp.LpConstraint(name=constraintName, sense=lpSense, rhs=constraintLimit, e=affine)
                 self.pulpConstraints.append(constraintVar)
+
+                print("\nOK OK OK!\n")
 
                 print(f"Limit for constraint {i}: {constraintLimit}")
                 print(f"LpSense for Constraint {i}: {lpSense}")
 
         except Exception as err:
+            print("Failed to Create Constraints")
             print(err)
             return False
         
@@ -254,7 +283,16 @@ class Solver:
         else:
             return True
 
+    #DEV FUNCTIONS
+    #DEV FUNCTIONS
+    def PrintList(self, listNameStr, list):
+        print(f"{listNameStr}:")
+        for i in range(len(list)):
+            print(f"\"{list[i]}\"", end=" ,")
+        print("\n\n")
 
+    #DEV FUNCTIONS
+    #DEV FUNCTIONS
 
 #SAMPLES
     """

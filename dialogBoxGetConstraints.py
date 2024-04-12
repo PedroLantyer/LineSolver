@@ -31,9 +31,16 @@ class GetConstraintsWindow:
         self.lowBoundEnabled = tk.IntVar(value=1)
         self.upBoundEnabled = tk.IntVar(value=1)
 
+    def ClearValues(self):
+        self.constraint.constraintVariables.clear()
+        self.constraint.constraintPieces.clear()
+        self.constraint.constraintNumModifiers.clear()
+        self.currentConstraintValue.set("")
+
     def AddConstraint(self, constraintStr, lowBoundStr, upBoundStr):
         
         try:
+            self.ClearValues()
             self.currentConstraintValue.set(constraintStr)
             if(self.lowBoundEnabled.get() == 0 and self.upBoundEnabled.get() == 0): raise Exception("Constraint can't have both boundaries set to infinite")
             if(self.bridge.ConstraintAlreadyExists(self.currentConstraintValue.get())): raise Exception(print("User tried to add constraint that already exists"))

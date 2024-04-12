@@ -35,21 +35,21 @@ class ConstraintValidations:
     def ValidConstraintValue(self, constraintStr):
         try:
             if(len(constraintStr.strip()) == 0): raise Exception("User Attempted to add empty constraint")
-            previousChar = ''
+            previousChar = ""
             operatorCount, charCount, numCount = 0, 0, 0
 
             for char in constraintStr:
 
                 if (char.isalpha()): charCount += 1 
-                elif(self.textVerification.isOperator(char)): operatorCount += 1
+                elif(self.textVerification.IsOperator(char)): operatorCount += 1
                 elif(char.isnumeric()): numCount += 1
                 else: raise Exception("Constraint must be a collection of letters, numbers and operators with no whitespaces\nValid operators are: +, -, *, /")
 
                 if(len(previousChar) == 0):
-                    if(self.textVerification.isOperator(char) and (char != '-')): raise Exception("Invalid Constraint")
+                    if(self.textVerification.IsOperator(char) and (char != '-')): raise Exception("Invalid Constraint")
 
                 else:
-                    if(self.textVerification.isOperator(previousChar) and self.textVerification.isOperator(char)): raise Exception("Invalid Constraint")
+                    if(self.textVerification.IsOperator(previousChar) and self.textVerification.IsOperator(char)): raise Exception("Invalid Constraint")
                     if(char.isnumeric() and previousChar.isalpha()): raise Exception("Invalid Constraint")
                     if(char.isalpha() and previousChar.isnumeric()): raise Exception("Invalid Constraint")
 
@@ -86,7 +86,25 @@ class TextVerifications:
     def __init__(self) -> None:
         pass
 
-    def isOperator(self, ch):
+    def IsOperator(self, ch):
         for operator in self.operators:
             if ch is operator: return True
         return False
+    
+    def FindAll(self, list, char):
+        pos = []
+        for i in range(len(list)):
+            if(list[i] == char): pos.append(i)
+        return pos
+    
+    def IsNumber(self, str):
+        minusCount = 0
+        
+        for i in range(len(str)):
+            if(str[i].isnumeric()): continue
+            elif(str[i] == "-"): 
+                minusCount += 1
+                if(minusCount > 1): return False
+            else:
+                return False
+        return True

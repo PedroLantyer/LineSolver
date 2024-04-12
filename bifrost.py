@@ -59,7 +59,6 @@ class Constraint:
         else:
             print(f"Changed LpSense to {self.lpSense}")
         
-
     def SetUpperBoundary(self, upBound):
         try:
             value = str(upBound)
@@ -68,24 +67,63 @@ class Constraint:
         except:
             print("Failed to set Upper Boundary")
 
+    def GetNumModifiers(self):
+        try:
+            temp = [piece for piece in self.constraintPieces if self.textVerifications.IsNumber(piece)]
+            self.constraintNumModifiers = temp
+        except Exception as err:
+            print(err)
+        else:
+            print("Got Num Modifiers")
+
+    def AdjustPieces(self):
+        self.PrintPieces()
+
+        try:
+            positions = self.textVerifications.FindAll(self.constraintPieces,"*")
+            if(len(positions) == 0): raise Exception("Couldn't find any ocurrences")
+            
+            for i in range(len(positions)):
+                pos = positions[i]
+                prior = self.constraintPieces[pos-1]
+                next = self.constraintPieces[pos+1]
+
+                if(self.textVerifications.IsNumber(prior)):
+                    if(self.textVerifications.IsNumber(next)):
+                        self.constraintPieces[pos-1] = str(int(prior) * int(next))
+                        self.constraintPieces[pos] = " "
+                        self.constraintPieces[pos+1] = " "
+                    
+                    elif(next.isalpha()):
+                        self.constraintPieces[positions[i]] = " "
+
+        except Exception as err:
+            print("Couldn't adjust pieces")
+            print(err)
+            pass
+
+        try:
+            temp = [piece for piece in self.constraintPieces if piece != " "]
+            self.constraintPieces = temp
+        except:
+            pass
+
+        self.GetNumModifiers()
+
     def ExtractPieces(self):
         var = ""
         num = ""
         previousChar = ''
-
-        if(len(self.constraintPieces) > 0): self.constraintPieces.clear()
-        if(len(self.constraintNumModifiers) > 0): self.constraintNumModifiers.clear()
-        if(len(self.constraintVariables) > 0) :self.constraintVariables.clear()
         self.InitializeClasses()
         for i in range(len(self.textForm)):
             
             char = self.textForm[i]
 
-            if(self.textVerifications.isOperator(char)):
+            if(self.textVerifications.IsOperator(char)):
                 
                 if(previousChar.isnumeric()):
+                #if(self.textVerifications.IsNumber(previousChar)):
                     self.constraintPieces.append(num)
-                    self.constraintNumModifiers.append(int(num))
                     num = ""
                 
                 elif(previousChar.isalpha()):
@@ -98,24 +136,22 @@ class Constraint:
             elif(char.isalpha()):
                 if(len(previousChar) == 0):
                     self.constraintPieces.append("1")
-                    self.constraintNumModifiers.append(1)
 
                 if(previousChar.isnumeric()):
+                #if(self.textVerifications.IsNumber(previousChar)):
                     self.constraintPieces.append(num)
-                    self.constraintNumModifiers.append(int(num))
                     num = ""
 
                 elif(previousChar == '-'):
                     self.constraintPieces.append("-1")
-                    self.constraintNumModifiers.append(-1)
                 
-                elif(self.textVerifications.isOperator(previousChar)):
+                elif(self.textVerifications.IsOperator(previousChar)):
                     self.constraintPieces.append("1")
-                    self.constraintNumModifiers.append(1)
                 
                 var += char
             
-            elif(char.isnumeric):
+            elif(char.isnumeric()):
+            #elif((self.textVerifications.IsNumber(char))):
                 if(previousChar.isalpha()):
                     self.constraintPieces.append(var)
                     self.constraintVariables.append(var)
@@ -125,8 +161,7 @@ class Constraint:
                 num += char
             
             previousChar = char
-            
-        
+
         if(len(num) > 0):
             self.constraintPieces.append(num)
             num = ""
@@ -134,12 +169,31 @@ class Constraint:
             self.constraintPieces.append(var)
             self.constraintVariables.append(var)
             var = ""
+        self.AdjustPieces()
 
     def GetPieces(self):
         print("\nPieces:")
-        for item in self.constraintPieces:
-            print(item, end=" ")
+        for item in self.constraintPieces: print(item, end=" ")
         print("\n\n")
+
+    #DEV FUNCTIONS
+    #DEV FUNCTIONS
+    def PrintPieces(self):
+        try:
+            #POS TEST
+            print("\n\nPOS TEST:")
+            for i in range(len(self.constraintPieces)):
+                print(f"\"{self.constraintPieces[i]}\"", end=", ")
+            print("\n\n")
+            #POS TEST
+        except Exception as err:
+            print("FAIL -> PRINT PIECES")
+            print(err)
+        else:
+            print("SUCCESS")
+
+    #DEV FUNCTIONS
+    #DEV FUNCTIONS
 
 class Variable:
     lowerBoundary = ""
