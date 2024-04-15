@@ -29,7 +29,7 @@ class GetConstraintsWindow:
     def InitializeTkVars(self):
         self.currentConstraintValue = tk.StringVar(value="")
         self.lowBoundEnabled = tk.IntVar(value=1)
-        self.upBoundEnabled = tk.IntVar(value=1)
+        self.upBoundEnabled = tk.IntVar(value=0)
 
     def ClearValues(self):
         self.constraint.constraintVariables.clear()
@@ -68,6 +68,7 @@ class GetConstraintsWindow:
             entryLowBound.config(state="disabled")
         else:
             entryLowBound.config(state="normal")
+            entryLowBound.insert(0, "0")
 
     def SetInfUpperBoundaryStatus(self, entryUpBound):
         if (self.upBoundEnabled.get() == 0):
@@ -75,6 +76,7 @@ class GetConstraintsWindow:
             entryUpBound.config(state="disabled")
         else:
             entryUpBound.config(state="normal")
+            entryUpBound.insert(0, "0")
 
     def InitializeElements(self):
         #GET DESIGNER CLASSES
@@ -92,9 +94,10 @@ class GetConstraintsWindow:
         labelInsertExpression = self.dialog.Label(frame, text="Expression:", bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
 
         #CREATE TEXTBOXES
-        entryLowBound = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg= entryStyles.fgColor, disabledbackground=entryStyles.disabledBgColor, disabledforeground= entryStyles.disabledFgColor, font=[labelStyles.font, labelStyles.fontSize])
-        entryConstraintExpression = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg= entryStyles.fgColor, disabledbackground=entryStyles.disabledBgColor, disabledforeground= entryStyles.disabledFgColor, font=[labelStyles.font, labelStyles.fontSize])
-        entryUpBound = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg= entryStyles.fgColor, disabledbackground=entryStyles.disabledBgColor, disabledforeground= entryStyles.disabledFgColor, font=[labelStyles.font, labelStyles.fontSize])
+        entryLowBound = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg= entryStyles.fgColor, disabledbackground=entryStyles.disabledBgColor, disabledforeground= entryStyles.disabledFgColor, font=[labelStyles.font, labelStyles.fontSize], justify=entryStyles.justify)
+        entryLowBound.insert(0, "0")
+        entryConstraintExpression = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg= entryStyles.fgColor, disabledbackground=entryStyles.disabledBgColor, disabledforeground= entryStyles.disabledFgColor, font=[labelStyles.font, labelStyles.fontSize], justify=entryStyles.justify)
+        entryUpBound = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg= entryStyles.fgColor, disabledbackground=entryStyles.disabledBgColor, disabledforeground= entryStyles.disabledFgColor, font=[labelStyles.font, labelStyles.fontSize], justify=entryStyles.justify, state="disabled")
 
         #FUNCTIONS FOR THE CHECKBOXES
 
@@ -107,7 +110,6 @@ class GetConstraintsWindow:
         #CREATE CHECKBOXES
         checkBoxInfLowerBoundary = self.dialog.Checkbutton(frame, text="Lower Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=self.lowBoundEnabled, offvalue=0, onvalue=1, command=InfLowerBoundaryChange)
         checkBoxInfUpperBoundary = self.dialog.Checkbutton(frame, text="Upper Boundary", bg=checkBoxStyles.bgColor, fg=checkBoxStyles.fgColor, font=[checkBoxStyles.font, checkBoxStyles.fontSize], variable=self.upBoundEnabled, offvalue=0, onvalue=1, command=InfUpperBoundaryChange)
-
 
         #FUNCTION FOR THE SUBMIT BUTTON
         def buttonSubmitOnClick():

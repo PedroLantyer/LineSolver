@@ -34,6 +34,7 @@ class Entry:
     relief = "groove"
     font = "Courier New"
     fontSize = 11
+    justify = "center"
     
 
 class TextBox:

@@ -31,21 +31,23 @@ class GetVariableWindow:
     def InitializeTkVars(self):
         self.currentVarValue = tk.StringVar(value="")
         self.lowBoundEnabled = tk.IntVar(value=1)
-        self.upBoundEnabled = tk.IntVar(value=1)
+        self.upBoundEnabled = tk.IntVar(value=0)
 
     def SetLowBoundaryEntryState(self, entryLowBound):
-        if(self.lowBoundEnabled.get() == 1):
-            entryLowBound.config(state="normal")
-        else:
+        if(self.lowBoundEnabled.get() == 0):
             entryLowBound.delete(0, tk.END)
             entryLowBound.config(state="disabled")
-
-    def SetUpperBoundaryEntryState(self, entryUpBound):
-        if(self.upBoundEnabled.get() == 1):
-            entryUpBound.config(state="normal")
         else:
+            entryLowBound.config(state="normal")
+            entryLowBound.insert(0, "0")
+            
+    def SetUpperBoundaryEntryState(self, entryUpBound):
+        if(self.upBoundEnabled.get() == 0):
             entryUpBound.delete(0, tk.END) #CLEAR THE VALUE OF THE UPPER BOUNDARY ENTRY
             entryUpBound.config(state="disabled")
+        else:
+            entryUpBound.config(state="normal")
+            entryUpBound.insert(0, "0")
 
     def AddVariable(self, varStr, lowBoundStr, upBoundStr):
         try:
@@ -84,9 +86,10 @@ class GetVariableWindow:
         labelInsertVariable = self.dialog.Label(frame, text=self.text, bg=labelStyles.bgColor, fg=labelStyles.fgColor, font=[labelStyles.font, labelStyles.fontSize])
         
         #CREATE ENTRIES
-        entryVariable = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
-        entryLowBound = self.dialog.Entry(frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
-        entryUpBound = self.dialog.Entry(frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief)
+        entryVariable = self.dialog.Entry(frame, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief, justify=entryStyles.justify)
+        entryLowBound = self.dialog.Entry(frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief, justify=entryStyles.justify)
+        entryLowBound.insert(0, "0")
+        entryUpBound = self.dialog.Entry(frame, disabledbackground=entryStyles.disabledBgColor, disabledforeground=entryStyles.disabledFgColor, bg=entryStyles.bgColor, fg=entryStyles.fgColor, font=[entryStyles.font, entryStyles.fontSize], relief=entryStyles.relief, justify=entryStyles.justify, state="disabled")
 
         #DEFINE FUNCTIONS
         def LowBoundEnabledChanged():

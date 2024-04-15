@@ -85,6 +85,28 @@ class TkGUI:
             entryValueOf.config(state="disabled") 
         self.bridge.SetLpSense(self.radioOption.get())
 
+    def SolveProblem(self, objective, lowBound, upBound):#ALTER PULP VARIABLE INT SENSE VALUE AFTER TESTS
+        try:
+            if not(self.solve.ValidateObjective(objective, self.lowBoundEnabled.get(), self.upBoundEnabled.get(), lowBound, upBound)): raise Exception("Failed to set objective")
+            if not(self.solve.ValidateData()): raise Exception("Failed to Validate Data")
+            if not(self.solve.CreatePulpProblem(senseInt=self.radioOption.get())): raise Exception("Failed to Create Problem")
+            if not(self.solve.CreatePulpVariables()): raise Exception("Failed to create Pulp Variables")
+            if not(self.solve.AddVariables()): raise Exception("Failed to add variables")
+                
+            if not(self.solve.SetObjective(senseInt=self.radioOption.get(), equalToStr="Null")): raise Exception("Failed to Set Objective") #VALUE IS TEMPORARY. ALTER ONCE TESTED
+            if not(self.solve.CreateConstraints()): raise Exception("Failed to create constraints")
+            if not(self.solve.ApplyConstraints()): raise Exception("Couldn't apply constraints")
+
+            if not(self.solve.SolveProblem()): raise Exception("Couldn't Solve Problem")
+            if not(self.solve.PrintValues()): raise Exception("Failed to print values")
+                
+        except Exception as err:
+            print("Failed to solve problem")
+            print(err)
+
+        else:
+            print("Solved!")
+
     def CreateWidgets(self):
         #GET DESIGNER CLASSES
         labelStyles = styles.Label()
@@ -107,22 +129,7 @@ class TkGUI:
         #CREATE FUNCTION FOR SOLVE BUTTON
 
         def buttonSolveOnClick(): #ALTER PULP VARIABLE INT SENSE VALUE AFTER TESTS
-            try:
-                if not(self.solve.ValidateObjective(entryObjective.get(), self.lowBoundEnabled.get(), self.upBoundEnabled.get(), entryLowerBoundary.get(), entryUpperBoundary.get())): raise Exception("Failed to set objective")
-                if not(self.solve.ValidateData()): raise Exception("Failed to Validate Data")
-                if not(self.solve.CreatePulpProblem(senseInt=self.radioOption.get())): raise Exception("Failed to Create Problem")
-                if not(self.solve.CreatePulpVariables()): raise Exception("Failed to create Pulp Variables")
-                if not(self.solve.AddVariables()): raise Exception("Failed to add variables")
-                
-                if not(self.solve.SetObjective(senseInt=self.radioOption.get(), equalToStr="Null")): raise Exception("Failed to Set Objective") #VALUE IS TEMPORARY. ALTER ONCE TESTED
-                if not(self.solve.CreateConstraints()): raise Exception("Failed to create constraints")
-                if not(self.solve.ApplyConstraints()): raise Exception("Couldn't apply constraints")
-
-                if not(self.solve.SolveProblem()): raise Exception("Couldn't Solve Problem")
-                if not(self.solve.PrintValues()): raise Exception("Failed to print values")
-                
-            except Exception as err:
-                print(err)
+            self.SolveProblem(objective=entryObjective.get(), lowBound=entryLowerBoundary.get(), upBound=entryUpperBoundary.get())
 
         #CREATE SOLVE BUTTON:
         buttonSolve = tk.Button(master=self.frame, text="Solve", bg=buttonStyles.bgColor, fg= buttonStyles.fgColor, font=[buttonStyles.font, buttonStyles.fontSize], relief=buttonStyles.relief, state="disabled", command=buttonSolveOnClick)
